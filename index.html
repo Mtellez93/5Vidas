@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Red Bull 5 Vidas - Oficial</title>
+    <title>Red Bull 5 Vidas - Oficial (Google Sheets DB)</title>
     
     <link rel="icon" type="image/png" href="favicon.png">
 
@@ -15,20 +15,23 @@
             height: 100vh; display: flex; flex-direction: column; overflow: hidden;
         }
 
-        /* SECCIÓN SUPERIOR */
+        /* SECCIÓN SUPERIOR: REPRODUCTOR Y CONTROLES */
         .top-section { height: 40%; display: flex; flex-direction: column; background-color: #000; }
         .media-controls {
             display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
             gap: 8px; padding: 10px; background: #1a1a2e; border-bottom: 2px solid #333;
         }
-        .input-group { display: flex; gap: 5px; flex-grow: 1; max-width: 250px; }
+        .input-group { display: flex; gap: 5px; flex-grow: 1; max-width: 200px; }
         input[type="text"], input[type="number"] {
             padding: 8px; border-radius: 5px; border: none;
             background: #fff; color: #333; font-weight: bold; width: 100%;
         }
-        .btn-media { padding: 8px 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.75rem; text-transform: uppercase; }
+        .btn-media { padding: 8px 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.7rem; text-transform: uppercase; transition: 0.2s; }
         .btn-yt-load { background-color: #cc0000; color: white; }
-        .btn-playlist { background-color: #333; color: white; border: 1px solid #555; }
+        
+        .btn-genre { background-color: #2e3b8b; color: white; border: 1px solid #4a59bd; }
+        .btn-genre:hover { background-color: #3f51b5; transform: scale(1.05); }
+
         .btn-timer { background-color: #f7b500; color: #000; }
         .btn-rst { background-color: #555; color: white; }
         .btn-reset-all { background-color: #ff4444; color: white; }
@@ -40,62 +43,32 @@
         .progress-container { flex-grow: 1; height: 10px; background: #333; border-radius: 10px; overflow: hidden; }
         #progress-bar { width: 100%; height: 100%; background: #4CAF50; transition: width 1s linear; }
 
-        /* SECCIÓN INFERIOR */
+        /* SECCIÓN INFERIOR: SCOREBOARD */
         .bottom-section {
-            height: 60%; 
-            display: flex; 
-            overflow-x: auto;
-            padding: 15px;
+            height: 60%; display: flex; overflow-x: auto; padding: 15px;
             background: radial-gradient(circle at center, #1e2a78 0%, #0f1642 70%);
-            gap: 15px;
-            box-sizing: border-box;
+            gap: 15px; box-sizing: border-box;
         }
-
         .player-column {
-            flex: 0 0 260px; /* Un poco más estrecha para móvil */
-            display: flex; flex-direction: column; align-items: center;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2); 
-            border-radius: 10px; padding: 12px;
-            height: fit-content;
+            flex: 0 0 260px; display: flex; flex-direction: column; align-items: center;
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2); 
+            border-radius: 10px; padding: 12px; height: fit-content;
         }
-
         @media (min-width: 1024px) {
             .player-column { flex: 1; min-width: 18%; }
             .bottom-section { justify-content: space-around; overflow-x: hidden; }
         }
-
-        .editable-box {
-            background: transparent; border: 2px solid white;
-            padding: 5px; text-align: center; width: 90%;
-            font-weight: bold; color: #fff; margin-bottom: 10px;
-        }
-
+        .editable-box { background: transparent; border: 2px solid white; padding: 5px; text-align: center; width: 90%; font-weight: bold; color: #fff; margin-bottom: 10px; outline: none; }
         .lives-container { display: flex; gap: 5px; margin-bottom: 15px; }
         .heart { cursor: pointer; font-size: 1.5rem; color: #ff0000; user-select: none; }
         .heart.lost { filter: grayscale(100%); opacity: 0.2; }
 
-        /* AJUSTES DE GÉNEROS Y PUNTOS */
         .genres-list { display: flex; flex-direction: column; width: 100%; gap: 6px; }
-        .genre-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 5px 10px; background: rgba(255, 255, 255, 0.1); border-radius: 5px;
-        }
-        .genre-name-input {
-            background: transparent; border: none; color: white;
-            font-weight: bold; text-transform: uppercase; font-size: 0.75rem;
-            width: 65%; /* MÁS CHICO PARA DAR ESPACIO */
-            outline: none;
-            padding-right: 5px;
-        }
-        .dot { 
-            width: 20px; height: 20px; /* UN POCO MÁS COMPACTO */
-            background-color: #8ce68c; border-radius: 50%; 
-            cursor: pointer; border: 2px solid #fff; 
-            flex-shrink: 0; /* Evita que el botón se deforme */
-        }
+        .genre-item { display: flex; justify-content: space-between; align-items: center; padding: 5px 10px; background: rgba(255, 255, 255, 0.1); border-radius: 5px; }
+        .genre-name-input { background: transparent; border: none; color: white; font-weight: bold; text-transform: uppercase; font-size: 0.7rem; width: 65%; outline: none; }
+        .dot { width: 20px; height: 20px; background-color: #8ce68c; border-radius: 50%; cursor: pointer; border: 2px solid #fff; flex-shrink: 0; }
         .dot.used { background-color: #444; border-color: #777; }
-
+        
         .bottom-section::-webkit-scrollbar { height: 8px; }
         .bottom-section::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
     </style>
@@ -105,17 +78,21 @@
     <div class="top-section">
         <div class="media-controls">
             <div class="input-group">
-                <input type="text" id="ytUrl" placeholder="URL de YouTube...">
+                <input type="text" id="ytUrl" placeholder="Pegar link YouTube...">
                 <button class="btn-media btn-yt-load" onclick="loadUserVideo()">▶</button>
             </div>
-            <button class="btn-media btn-playlist" onclick="loadPlaylist('boombap')">BoomBap</button>
-            <button class="btn-media btn-playlist" onclick="loadPlaylist('trap')">Trap</button>
-            <button class="btn-media btn-playlist" onclick="loadPlaylist('redbull')">RB</button>
+            
+            <button class="btn-media btn-genre" onclick="loadRandomBeat(0)">BoomBap</button>
+            <button class="btn-media btn-genre" onclick="loadRandomBeat(1)">Trap</button>
+            <button class="btn-media btn-genre" onclick="loadRandomBeat(2)">Reggae</button>
+            <button class="btn-media btn-genre" onclick="loadRandomBeat(3)">Rock</button>
+            <button class="btn-media btn-genre" onclick="loadRandomBeat(4)">D.Tempo</button>
+
             <span style="color:#555;">|</span>
-            <input type="number" id="timeInput" value="60" step="30" min="30" style="width: 55px;">
+            <input type="number" id="timeInput" value="60" step="30" min="30" style="width: 50px;">
             <button class="btn-media btn-timer" id="startBtn" onclick="toggleTimer()">⏱</button>
             <button class="btn-media btn-rst" onclick="resetTimer()">RST</button>
-            <button class="btn-media btn-reset-all" onclick="resetBattle()">REINICIAR TODO</button>
+            <button class="btn-media btn-reset-all" onclick="resetBattle()">REINICIAR</button>
         </div>
         <iframe id="mediaFrame" src="" allow="autoplay; encrypted-media" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
     </div>
@@ -131,6 +108,51 @@
         const frame = document.getElementById('mediaFrame');
         const sb = document.getElementById('scoreboard');
         const defaultGeneros = ["Boom Bap", "Trap", "Reggae", "Rock", "Doble Tempo"];
+        
+        // --- CONFIGURACIÓN GOOGLE SHEETS ---
+        const SHEET_URL = 'TU_ENLACE_CSV_AQUI'; 
+        let beatLibrary = [[], [], [], [], []];
+
+        // Función para extraer ID de cualquier link de YT
+        function extractId(url) {
+            if (url.length === 11 && !url.includes('/') && !url.includes('=')) return url;
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        async function fetchBeats() {
+            try {
+                const response = await fetch(SHEET_URL);
+                const data = await response.text();
+                const rows = data.split(/\r?\n/).slice(1); 
+                
+                rows.forEach(row => {
+                    const columns = row.split(',');
+                    columns.forEach((rawUrl, index) => {
+                        if (rawUrl && rawUrl.trim() && index < 5) {
+                            const cleanId = extractId(rawUrl.trim());
+                            if (cleanId) beatLibrary[index].push(cleanId);
+                        }
+                    });
+                });
+                loadRandomBeat(0); 
+            } catch (error) {
+                console.error("Error cargando base de datos:", error);
+            }
+        }
+
+        function loadRandomBeat(genreIndex) {
+            const list = beatLibrary[genreIndex];
+            if (list && list.length > 0) {
+                const randomId = list[Math.floor(Math.random() * list.length)];
+                frame.src = `https://www.youtube.com/embed/${randomId}?autoplay=1&rel=0`;
+            } else {
+                // Fallback si la lista está vacía
+                const fallbacks = ["O0mS9_8G-Yk", "NpEaa2P7qZI", "oDNo_G_5-00", "5Xp3y6YcaBw", "H_08_PZ8B-M"];
+                frame.src = `https://www.youtube.com/embed/${fallbacks[genreIndex]}?autoplay=1&rel=0`;
+            }
+        }
 
         function renderBoard() {
             sb.innerHTML = ""; 
@@ -156,21 +178,12 @@
         }
 
         function syncRow(idx, val) {
-            document.querySelectorAll(`.row-${idx}`).forEach(input => {
-                input.value = val;
-            });
-        }
-
-        function loadPlaylist(type) {
-            let id = type === 'boombap' ? "O0mS9_8G-Yk" : type === 'trap' ? "NpEaa2P7qZI" : "H_08_PZ8B-M";
-            frame.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
+            document.querySelectorAll(`.row-${idx}`).forEach(input => { input.value = val; });
         }
 
         function loadUserVideo() {
             const val = document.getElementById('ytUrl').value;
-            let id = "";
-            if (val.includes('v=')) id = val.split('v=')[1].split('&')[0];
-            else if (val.includes('youtu.be/')) id = val.split('youtu.be/')[1].split('?')[0];
+            const id = extractId(val);
             if(id) frame.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
         }
 
@@ -182,7 +195,11 @@
                 running = true; document.getElementById('startBtn').innerText = "⏸";
                 timer = setInterval(() => {
                     time--; updateTimer();
-                    if(time <= 0) { clearInterval(timer); running = false; document.getElementById('startBtn').innerText = "⏱"; }
+                    if(time <= 0) { 
+                        clearInterval(timer); running = false; 
+                        document.getElementById('startBtn').innerText = "⏱";
+                        new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg').play().catch(()=>{});
+                    }
                 }, 1000);
             }
         }
@@ -194,7 +211,7 @@
         }
 
         function resetBattle() {
-            if(confirm("¿Reiniciar todo?")) {
+            if(confirm("¿Reiniciar todas las vidas y puntos?")) {
                 document.querySelectorAll('.heart').forEach(h => h.classList.remove('lost'));
                 document.querySelectorAll('.dot').forEach(d => d.classList.remove('used'));
                 resetTimer();
@@ -204,7 +221,7 @@
         window.onload = () => {
             renderBoard();
             resetTimer();
-            loadPlaylist('boombap');
+            fetchBeats();
         };
     </script>
 </body>
