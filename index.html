@@ -38,6 +38,7 @@
         .btn-yt-load { background-color: #cc0000; color: white; }
         .btn-playlist { background-color: #333; color: white; border: 1px solid #555; }
         .btn-timer { background-color: #f7b500; color: #000; }
+        .btn-rst { background-color: #555; color: white; } /* Botón RST solo tiempo */
         .btn-reset-all { background-color: #ff4444; color: white; }
 
         iframe { width: 100%; height: 100%; border: none; flex-grow: 1; }
@@ -122,7 +123,7 @@
             
             <input type="number" id="timeInput" value="60" style="width: 45px;">
             <button class="btn-media btn-timer" id="startBtn" onclick="toggleTimer()">⏱</button>
-            <button class="btn-media btn-reset-all" onclick="resetBattle()">REINICIAR TODO</button>
+            <button class="btn-media btn-rst" onclick="resetTimer()">RST</button> <button class="btn-media btn-reset-all" onclick="resetBattle()">REINICIAR TODO</button>
         </div>
         <iframe id="mediaFrame" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
     </div>
@@ -150,42 +151,61 @@
             if(id) frame.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1`;
         }
 
-        // CRONÓMETRO
+        // --- LÓGICA CRONÓMETRO ---
         let time, timer, running = false;
+        
         function toggleTimer() {
-            if(running) { clearInterval(timer); running = false; document.getElementById('startBtn').innerText = "⏱"; }
-            else {
+            const btn = document.getElementById('startBtn');
+            if(running) { 
+                clearInterval(timer); 
+                running = false; 
+                btn.innerText = "⏱"; 
+            } else {
                 if(!time || time <= 0) time = parseInt(document.getElementById('timeInput').value);
-                running = true; document.getElementById('startBtn').innerText = "⏸";
+                running = true; 
+                btn.innerText = "⏸";
                 timer = setInterval(() => {
-                    time--; updateTimer();
-                    if(time <= 0) { clearInterval(timer); running = false; document.getElementById('startBtn').innerText = "⏱"; }
+                    time--; 
+                    updateTimer();
+                    if(time <= 0) { 
+                        clearInterval(timer); 
+                        running = false; 
+                        btn.innerText = "⏱"; 
+                        new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg').play().catch(() => {});
+                    }
                 }, 1000);
             }
         }
+
+        // RST: SOLO REINICIA EL TIEMPO
+        function resetTimer() { 
+            clearInterval(timer); 
+            running = false; 
+            time = parseInt(document.getElementById('timeInput').value); 
+            updateTimer(); 
+            document.getElementById('startBtn').innerText = "⏱"; 
+        }
+
         function updateTimer() {
             const m = Math.floor(time/60), s = time%60;
             document.getElementById('timer-display').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            document.getElementById('progress-bar').style.width = (time / parseInt(document.getElementById('timeInput').value) * 100) + "%";
+            const total = parseInt(document.getElementById('timeInput').value);
+            document.getElementById('progress-bar').style.width = ((time / total) * 100) + "%";
         }
 
-        // --- FUNCIÓN PARA REINICIAR LA BATALLA ---
+        // --- REINICIAR TODO (BATTLE RESET) ---
         function resetBattle() {
             if(!confirm("¿Estás seguro de reiniciar todas las vidas y puntos?")) return;
             
-            // Reiniciar Vidas
+            // Reiniciar Vidas de todos
             document.querySelectorAll('.heart').forEach(h => h.classList.remove('lost'));
-            // Reiniciar Puntos/Géneros
+            // Reiniciar Puntos de todos
             document.querySelectorAll('.dot').forEach(d => d.classList.remove('used'));
-            // Reiniciar Tiempo
-            clearInterval(timer);
-            running = false;
-            time = parseInt(document.getElementById('timeInput').value);
-            updateTimer();
-            document.getElementById('startBtn').innerText = "⏱";
+            // Reiniciar el cronómetro usando la función anterior
+            resetTimer();
         }
 
-        // GENERAR TABLA
+        // GENERAR SCOREBOARD
         const sb = document.getElementById('scoreboard');
         for(let i=1; i<=5; i++) {
             sb.innerHTML += `<div class="player-column">
