@@ -91,15 +91,30 @@
         .heart { cursor: pointer; font-size: 1.4rem; color: #ff0000; user-select: none; }
         .heart.lost { filter: grayscale(100%); opacity: 0.2; }
 
-        .genres-container {
-            display: flex; flex-direction: column; gap: 8px;
-            justify-content: center; flex-grow: 1; border: 1px solid rgba(255,255,255,0.3);
-            width: 90%; padding: 5px 0; border-radius: 5px;
+        /* CONTENEDOR DE GÉNEROS Y PUNTOS */
+        .genres-list {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            gap: 6px;
+            margin-top: 5px;
+        }
+
+        .genre-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
         }
         
         .dot {
-            width: 24px; height: 24px; background-color: #8ce68c;
-            border-radius: 50%; cursor: pointer; border: 2px solid #fff; margin: 0 auto;
+            width: 18px; height: 18px; background-color: #8ce68c;
+            border-radius: 50%; cursor: pointer; border: 2px solid #fff;
         }
         .dot.used { background-color: #444; border-color: #777; }
 
@@ -126,12 +141,7 @@
             <button class="btn-media btn-rst" onclick="resetTimer()">RST</button>
             <button class="btn-media btn-reset-all" onclick="resetBattle()">REINICIAR TODO</button>
         </div>
-        <iframe id="mediaFrame" 
-                src="" 
-                allow="autoplay; encrypted-media; picture-in-picture" 
-                referrerpolicy="no-referrer-when-downgrade"
-                allowfullscreen>
-        </iframe>
+        <iframe id="mediaFrame" src="" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
     </div>
 
     <div class="timer-section">
@@ -144,15 +154,13 @@
     <script>
         const frame = document.getElementById('mediaFrame');
         
-        // --- IDS DE VIDEOS CON INSERCIÓN GARANTIZADA ---
         function loadPlaylist(type) {
             let id = "";
             switch(type) {
-                case 'boombap': id = "O0mS9_8G-Yk"; break; // Beat Boom Bap 
-                case 'trap': id = "NpEaa2P7qZI"; break;    // Beat Trap
-                case 'redbull': id = "H_08_PZ8B-M"; break; // Beat RB Oficial
+                case 'boombap': id = "O0mS9_8G-Yk"; break;
+                case 'trap': id = "NpEaa2P7qZI"; break;
+                case 'redbull': id = "H_08_PZ8B-M"; break;
             }
-            // Usamos youtube.com/embed/ directamente
             frame.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
         }
 
@@ -211,18 +219,27 @@
             resetTimer();
         }
 
+        // GENERAR SCOREBOARD CON GÉNEROS FIJOS
         const sb = document.getElementById('scoreboard');
+        const generos = ["Boom Bap", "Trap", "Reggae", "Rock", "Doble Tempo"];
+
         for(let i=1; i<=5; i++) {
-            sb.innerHTML += `<div class="player-column">
+            let columnHtml = `
+            <div class="player-column">
                 <div class="editable-box" contenteditable="true">MC ${i}</div>
                 <div class="lives-container">
                     ${Array(5).fill('<span class="heart" onclick="this.classList.toggle(\'lost\')">❤️</span>').join('')}
                 </div>
-                <div class="editable-box" contenteditable="true" style="font-size:0.75rem">Técnicas / Puntos</div>
-                <div class="genres-container">
-                    ${Array(5).fill('<div class="dot" onclick="this.classList.toggle(\'used\')"></div>').join('')}
+                <div class="genres-list">
+                    ${generos.map(g => `
+                        <div class="genre-item">
+                            <span>${g}</span>
+                            <div class="dot" onclick="this.classList.toggle('used')"></div>
+                        </div>
+                    `).join('')}
                 </div>
             </div>`;
+            sb.innerHTML += columnHtml;
         }
 
         window.onload = () => { 
