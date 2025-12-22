@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Red Bull 5 Vidas - Oficial</title>
+    <title>Red Bull 5 Vidas - Sincronizado</title>
     
     <link rel="icon" type="image/png" href="favicon.png">
 
@@ -91,7 +91,6 @@
         .heart { cursor: pointer; font-size: 1.4rem; color: #ff0000; user-select: none; }
         .heart.lost { filter: grayscale(100%); opacity: 0.2; }
 
-        /* CONTENEDOR DE GÉNEROS Y PUNTOS */
         .genres-list {
             display: flex;
             flex-direction: column;
@@ -107,9 +106,17 @@
             padding: 4px 10px;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 4px;
+        }
+
+        .genre-name {
             font-size: 0.75rem;
             font-weight: bold;
             text-transform: uppercase;
+            border: none;
+            background: transparent;
+            color: white;
+            width: 80%;
+            outline: none;
         }
         
         .dot {
@@ -219,9 +226,18 @@
             resetTimer();
         }
 
-        // GENERAR SCOREBOARD CON GÉNEROS FIJOS
+        // --- LÓGICA DE SINCRONIZACIÓN DE GÉNEROS ---
+        function syncGenres(rowIndex, newValue) {
+            // Busca todos los inputs que pertenecen a la misma fila en todas las columnas
+            const allInputs = document.querySelectorAll(`.genre-row-${rowIndex}`);
+            allInputs.forEach(input => {
+                input.value = newValue;
+            });
+        }
+
+        // GENERAR SCOREBOARD
         const sb = document.getElementById('scoreboard');
-        const generos = ["Boom Bap", "Trap", "Reggae", "Rock", "Doble Tempo"];
+        const defaultGeneros = ["Boom Bap", "Trap", "Reggae", "Rock", "Doble Tempo"];
 
         for(let i=1; i<=5; i++) {
             let columnHtml = `
@@ -230,23 +246,3 @@
                 <div class="lives-container">
                     ${Array(5).fill('<span class="heart" onclick="this.classList.toggle(\'lost\')">❤️</span>').join('')}
                 </div>
-                <div class="genres-list">
-                    ${generos.map(g => `
-                        <div class="genre-item">
-                            <span>${g}</span>
-                            <div class="dot" onclick="this.classList.toggle('used')"></div>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>`;
-            sb.innerHTML += columnHtml;
-        }
-
-        window.onload = () => { 
-            time = 60;
-            updateTimer();
-            loadPlaylist('boombap'); 
-        };
-    </script>
-</body>
-</html>
