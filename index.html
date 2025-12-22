@@ -3,159 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Red Bull 5 Vidas - Versión Estable</title>
+    <title>Red Bull 5 Vidas - Oficial</title>
+    
+    <link rel="icon" type="image/png" href="favicon.png">
+
     <style>
         body {
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             background: linear-gradient(135deg, #0f1642 0%, #05081c 100%);
-            color: white;
-            font-family: 'Segoe UI', sans-serif;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+            color: white; font-family: 'Segoe UI', sans-serif;
+            height: 100vh; display: flex; flex-direction: column; overflow: hidden;
         }
 
         /* SUPERIOR: REPRODUCTOR */
-        .top-section {
-            height: 45%;
-            display: flex;
-            flex-direction: column;
-            background-color: #000;
-        }
-
+        .top-section { height: 42%; display: flex; flex-direction: column; background-color: #000; }
         .media-controls {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            background: #1a1a2e;
-            border-bottom: 2px solid #333;
+            display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+            gap: 10px; padding: 10px; background: #1a1a2e; border-bottom: 2px solid #333;
         }
-
         .input-group { display: flex; gap: 5px; }
-
         input[type="text"], input[type="number"] {
-            padding: 8px;
-            border-radius: 5px;
-            border: none;
-            background: #fff;
-            color: #333;
-            font-weight: bold;
+            padding: 8px; border-radius: 5px; border: none;
+            background: #fff; color: #333; font-weight: bold;
         }
-
         .btn-media {
-            padding: 8px 12px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 0.8rem;
-            text-transform: uppercase;
+            padding: 8px 12px; border: none; border-radius: 5px;
+            cursor: pointer; font-weight: bold; font-size: 0.8rem; text-transform: uppercase;
         }
-
         .btn-yt-load { background-color: #cc0000; color: white; }
         .btn-playlist { background-color: #333; color: white; border: 1px solid #555; }
         .btn-timer { background-color: #f7b500; color: #000; }
-
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            flex-grow: 1;
-        }
+        iframe { width: 100%; height: 100%; border: none; flex-grow: 1; }
 
         /* CRONÓMETRO */
         .timer-section {
-            background: #000;
-            padding: 5px 20px;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            border-bottom: 2px solid white;
+            background: #000; padding: 5px 20px;
+            display: flex; align-items: center; gap: 20px; border-bottom: 2px solid white;
         }
-
-        #timer-display {
-            font-family: monospace;
-            font-size: 2rem;
-            font-weight: bold;
-            color: #f7b500;
-            min-width: 90px;
-        }
-
-        .progress-container {
-            flex-grow: 1;
-            height: 12px;
-            background: #333;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        #progress-bar {
-            width: 100%;
-            height: 100%;
-            background: #4CAF50;
-            transition: width 1s linear;
-        }
+        #timer-display { font-family: monospace; font-size: 2rem; font-weight: bold; color: #f7b500; min-width: 90px; }
+        .progress-container { flex-grow: 1; height: 12px; background: #333; border-radius: 10px; overflow: hidden; }
+        #progress-bar { width: 100%; height: 100%; background: #4CAF50; transition: width 1s linear; }
 
         /* INFERIOR: SCOREBOARD */
         .bottom-section {
-            height: 55%;
-            padding: 10px;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
+            height: 58%; padding: 10px;
+            display: flex; justify-content: space-around; align-items: center;
             background: radial-gradient(circle at center, #1e2a78 0%, #0f1642 70%);
         }
-
         .player-column {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 18%;
-            height: 95%;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            padding: 5px;
+            display: flex; flex-direction: column; align-items: center;
+            width: 18%; height: 95%; background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 10px; padding: 5px;
         }
-
         .editable-box {
-            background: transparent;
-            border: 1px solid rgba(255,255,255,0.4);
-            border-radius: 4px;
-            padding: 5px;
-            text-align: center;
-            width: 90%;
-            font-weight: bold;
-            color: #fff;
-            margin-bottom: 5px;
+            background: transparent; border: 2px solid white; /* Como en tu imagen */
+            padding: 5px; text-align: center; width: 90%;
+            font-weight: bold; color: #fff; margin-bottom: 8px;
         }
-
-        .lives-container { display: flex; gap: 2px; margin-bottom: 10px; }
-        .heart { cursor: pointer; font-size: 1.2rem; }
-        .heart.lost { filter: grayscale(100%); opacity: 0.3; }
+        .lives-container { display: flex; gap: 2px; margin-bottom: 15px; justify-content: center; width: 100%; }
+        .heart { cursor: pointer; font-size: 1.4rem; color: #ff0000; text-shadow: 0 0 5px black; }
+        .heart.lost { filter: grayscale(100%); opacity: 0.2; }
 
         .genres-container {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            justify-content: center;
-            flex-grow: 1;
+            display: flex; flex-direction: column; gap: 12px;
+            justify-content: center; flex-grow: 1; border: 1px solid rgba(255,255,255,0.3);
+            width: 90%; padding: 10px 0; border-radius: 5px;
         }
-
         .dot {
-            width: 20px;
-            height: 20px;
-            background-color: #4CAF50;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid #fff;
+            width: 24px; height: 24px; background-color: #8ce68c; /* Verde claro */
+            border-radius: 50%; cursor: pointer; border: 2px solid #fff; margin: 0 auto;
         }
-
         .dot.used { background-color: #444; border-color: #777; }
     </style>
 </head>
@@ -164,7 +81,7 @@
     <div class="top-section">
         <div class="media-controls">
             <div class="input-group">
-                <input type="text" id="ytUrl" placeholder="Link YouTube...">
+                <input type="text" id="ytUrl" placeholder="Pegar Link YouTube...">
                 <button class="btn-media btn-yt-load" onclick="loadUserVideo()">▶ CARGAR</button>
             </div>
             <button class="btn-media btn-playlist" onclick="loadPlaylist('boombap')">🎧 BOOM BAP</button>
@@ -187,22 +104,22 @@
     <script>
         const frame = document.getElementById('mediaFrame');
         
-        // IDs ACTUALIZADOS Y PROBADOS PARA EVITAR "VIDEO UNAVAILABLE"
         function loadPlaylist(type) {
             let id = "";
-            if(type === 'boombap') id = "5Xp3y6YcaBw"; // Boom Bap Instrumental Oficial
-            if(type === 'trap') id = "Lp-E3Z7I9YI";    // Trap Beat Estable
-            if(type === 'redbull') id = "H_08_PZ8B-M"; // Red Bull Oficial
+            if(type === 'boombap') id = "5Xp3y6YcaBw"; 
+            if(type === 'trap') id = "Lp-E3Z7I9YI";    
+            if(type === 'redbull') id = "H_08_PZ8B-M"; 
             frame.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1`;
         }
 
         function loadUserVideo() {
             const val = document.getElementById('ytUrl').value;
-            let id = val.includes('v=') ? val.split('v=')[1].split('&')[0] : val.split('youtu.be/')[1];
+            let id = "";
+            if(val.includes('v=')) id = val.split('v=')[1].split('&')[0];
+            else if(val.includes('youtu.be/')) id = val.split('youtu.be/')[1].split('?')[0];
             if(id) frame.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1`;
         }
 
-        // CRONÓMETRO
         let time, timer, running = false;
         function toggleTimer() {
             if(running) { clearInterval(timer); running = false; document.getElementById('startBtn').innerText = "⏱ REANUDAR"; }
@@ -222,14 +139,25 @@
             document.getElementById('progress-bar').style.width = (time / parseInt(document.getElementById('timeInput').value) * 100) + "%";
         }
 
-        // TABLA
         const sb = document.getElementById('scoreboard');
         for(let i=1; i<=5; i++) {
             sb.innerHTML += `<div class="player-column">
-                <div class="editable-box" contenteditable="true">MC ${i}</div>
-                <div class="lives-container">${'❤️'.repeat(5).split('❤️').map((_,j)=>j<5?`<span class="heart" onclick="this.classList.toggle('lost')">❤️</span>`:'').join('')}</div>
-                <div class="editable-box" contenteditable="true" style="font-size:0.8rem">ESTILO</div>
-                <div class="genres-container">${'<div class="dot" onclick="this.classList.toggle(\'used\')"></div>'.repeat(5)}</div>
+                <div class="editable-box" contenteditable="true">Nombre ${i}</div>
+                <div class="lives-container">
+                    <span class="heart" onclick="this.classList.toggle('lost')">❤️</span>
+                    <span class="heart" onclick="this.classList.toggle('lost')">❤️</span>
+                    <span class="heart" onclick="this.classList.toggle('lost')">❤️</span>
+                    <span class="heart" onclick="this.classList.toggle('lost')">❤️</span>
+                    <span class="heart" onclick="this.classList.toggle('lost')">❤️</span>
+                </div>
+                <div class="editable-box" contenteditable="true" style="font-size:0.8rem">Genero #${i}</div>
+                <div class="genres-container">
+                    <div class="dot" onclick="this.classList.toggle('used')"></div>
+                    <div class="dot" onclick="this.classList.toggle('used')"></div>
+                    <div class="dot" onclick="this.classList.toggle('used')"></div>
+                    <div class="dot" onclick="this.classList.toggle('used')"></div>
+                    <div class="dot" onclick="this.classList.toggle('used')"></div>
+                </div>
             </div>`;
         }
 
