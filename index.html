@@ -16,64 +16,94 @@
         }
 
         /* SUPERIOR: REPRODUCTOR */
-        .top-section { height: 42%; display: flex; flex-direction: column; background-color: #000; }
+        .top-section { height: 40%; display: flex; flex-direction: column; background-color: #000; }
+        
         .media-controls {
             display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
-            gap: 10px; padding: 10px; background: #1a1a2e; border-bottom: 2px solid #333;
+            gap: 8px; padding: 10px; background: #1a1a2e; border-bottom: 2px solid #333;
         }
-        .input-group { display: flex; gap: 5px; }
+
+        .input-group { display: flex; gap: 5px; flex-grow: 1; max-width: 250px; }
+        
         input[type="text"], input[type="number"] {
             padding: 8px; border-radius: 5px; border: none;
-            background: #fff; color: #333; font-weight: bold;
+            background: #fff; color: #333; font-weight: bold; width: 100%;
         }
+
         .btn-media {
-            padding: 8px 12px; border: none; border-radius: 5px;
-            cursor: pointer; font-weight: bold; font-size: 0.8rem; text-transform: uppercase;
+            padding: 8px 10px; border: none; border-radius: 5px;
+            cursor: pointer; font-weight: bold; font-size: 0.75rem; text-transform: uppercase;
         }
+        
         .btn-yt-load { background-color: #cc0000; color: white; }
         .btn-playlist { background-color: #333; color: white; border: 1px solid #555; }
         .btn-timer { background-color: #f7b500; color: #000; }
+        .btn-reset-all { background-color: #ff4444; color: white; }
+
         iframe { width: 100%; height: 100%; border: none; flex-grow: 1; }
 
         /* CRONÓMETRO */
         .timer-section {
-            background: #000; padding: 5px 20px;
-            display: flex; align-items: center; gap: 20px; border-bottom: 2px solid white;
+            background: #000; padding: 5px 15px;
+            display: flex; align-items: center; gap: 15px; border-bottom: 2px solid white;
         }
-        #timer-display { font-family: monospace; font-size: 2rem; font-weight: bold; color: #f7b500; min-width: 90px; }
-        .progress-container { flex-grow: 1; height: 12px; background: #333; border-radius: 10px; overflow: hidden; }
+        #timer-display { font-family: monospace; font-size: 1.5rem; font-weight: bold; color: #f7b500; min-width: 70px; }
+        .progress-container { flex-grow: 1; height: 10px; background: #333; border-radius: 10px; overflow: hidden; }
         #progress-bar { width: 100%; height: 100%; background: #4CAF50; transition: width 1s linear; }
 
-        /* INFERIOR: SCOREBOARD */
+        /* INFERIOR: SCOREBOARD RESPONSIVO */
         .bottom-section {
-            height: 58%; padding: 10px;
-            display: flex; justify-content: space-around; align-items: center;
+            height: 60%; 
+            display: flex; 
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 15px;
             background: radial-gradient(circle at center, #1e2a78 0%, #0f1642 70%);
+            gap: 15px;
+            scroll-snap-type: x mandatory;
         }
+
         .player-column {
+            flex: 0 0 85%;
+            scroll-snap-align: center;
             display: flex; flex-direction: column; align-items: center;
-            width: 18%; height: 95%; background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 10px; padding: 5px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2); 
+            border-radius: 10px; padding: 10px;
+            max-height: 95%;
         }
+
+        @media (min-width: 768px) {
+            .player-column { flex: 1; max-width: 18%; }
+            .bottom-section { justify-content: space-around; overflow-x: hidden; }
+            #timer-display { font-size: 2rem; }
+        }
+
         .editable-box {
-            background: transparent; border: 2px solid white; /* Como en tu imagen */
+            background: transparent; border: 2px solid white;
             padding: 5px; text-align: center; width: 90%;
             font-weight: bold; color: #fff; margin-bottom: 8px;
+            font-size: 0.9rem;
         }
-        .lives-container { display: flex; gap: 2px; margin-bottom: 15px; justify-content: center; width: 100%; }
-        .heart { cursor: pointer; font-size: 1.4rem; color: #ff0000; text-shadow: 0 0 5px black; }
+
+        .lives-container { display: flex; gap: 2px; margin-bottom: 10px; justify-content: center; }
+        .heart { cursor: pointer; font-size: 1.4rem; color: #ff0000; user-select: none; }
         .heart.lost { filter: grayscale(100%); opacity: 0.2; }
 
         .genres-container {
-            display: flex; flex-direction: column; gap: 12px;
+            display: flex; flex-direction: column; gap: 8px;
             justify-content: center; flex-grow: 1; border: 1px solid rgba(255,255,255,0.3);
-            width: 90%; padding: 10px 0; border-radius: 5px;
+            width: 90%; padding: 5px 0; border-radius: 5px;
         }
+        
         .dot {
-            width: 24px; height: 24px; background-color: #8ce68c; /* Verde claro */
+            width: 24px; height: 24px; background-color: #8ce68c;
             border-radius: 50%; cursor: pointer; border: 2px solid #fff; margin: 0 auto;
         }
         .dot.used { background-color: #444; border-color: #777; }
+
+        .bottom-section::-webkit-scrollbar { height: 8px; }
+        .bottom-section::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -81,15 +111,18 @@
     <div class="top-section">
         <div class="media-controls">
             <div class="input-group">
-                <input type="text" id="ytUrl" placeholder="Pegar Link YouTube...">
-                <button class="btn-media btn-yt-load" onclick="loadUserVideo()">▶ CARGAR</button>
+                <input type="text" id="ytUrl" placeholder="Link YouTube...">
+                <button class="btn-media btn-yt-load" onclick="loadUserVideo()">▶</button>
             </div>
-            <button class="btn-media btn-playlist" onclick="loadPlaylist('boombap')">🎧 BOOM BAP</button>
-            <button class="btn-media btn-playlist" onclick="loadPlaylist('trap')">🔥 TRAP</button>
-            <button class="btn-media btn-playlist" onclick="loadPlaylist('redbull')">🐂 RB BEATS</button>
+            <button class="btn-media btn-playlist" onclick="loadPlaylist('boombap')">BoomBap</button>
+            <button class="btn-media btn-playlist" onclick="loadPlaylist('trap')">Trap</button>
+            <button class="btn-media btn-playlist" onclick="loadPlaylist('redbull')">RB</button>
+            
+            <span style="color:#555;">|</span>
+            
             <input type="number" id="timeInput" value="60" style="width: 45px;">
-            <button class="btn-media btn-timer" id="startBtn" onclick="toggleTimer()">⏱ INICIAR</button>
-            <button class="btn-media" style="background:#555; color:white;" onclick="resetTimer()">RST</button>
+            <button class="btn-media btn-timer" id="startBtn" onclick="toggleTimer()">⏱</button>
+            <button class="btn-media btn-reset-all" onclick="resetBattle()">REINICIAR TODO</button>
         </div>
         <iframe id="mediaFrame" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
     </div>
@@ -105,10 +138,7 @@
         const frame = document.getElementById('mediaFrame');
         
         function loadPlaylist(type) {
-            let id = "";
-            if(type === 'boombap') id = "5Xp3y6YcaBw"; 
-            if(type === 'trap') id = "Lp-E3Z7I9YI";    
-            if(type === 'redbull') id = "H_08_PZ8B-M"; 
+            let id = type === 'boombap' ? "5Xp3y6YcaBw" : type === 'trap' ? "Lp-E3Z7I9YI" : "H_08_PZ8B-M";
             frame.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1`;
         }
 
@@ -120,48 +150,61 @@
             if(id) frame.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1`;
         }
 
+        // CRONÓMETRO
         let time, timer, running = false;
         function toggleTimer() {
-            if(running) { clearInterval(timer); running = false; document.getElementById('startBtn').innerText = "⏱ REANUDAR"; }
+            if(running) { clearInterval(timer); running = false; document.getElementById('startBtn').innerText = "⏱"; }
             else {
                 if(!time || time <= 0) time = parseInt(document.getElementById('timeInput').value);
-                running = true; document.getElementById('startBtn').innerText = "⏸ PAUSAR";
+                running = true; document.getElementById('startBtn').innerText = "⏸";
                 timer = setInterval(() => {
                     time--; updateTimer();
-                    if(time <= 0) { clearInterval(timer); running = false; document.getElementById('startBtn').innerText = "⏱ INICIAR"; }
+                    if(time <= 0) { clearInterval(timer); running = false; document.getElementById('startBtn').innerText = "⏱"; }
                 }, 1000);
             }
         }
-        function resetTimer() { clearInterval(timer); running = false; time = parseInt(document.getElementById('timeInput').value); updateTimer(); document.getElementById('startBtn').innerText = "⏱ INICIAR"; }
         function updateTimer() {
             const m = Math.floor(time/60), s = time%60;
             document.getElementById('timer-display').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
             document.getElementById('progress-bar').style.width = (time / parseInt(document.getElementById('timeInput').value) * 100) + "%";
         }
 
+        // --- FUNCIÓN PARA REINICIAR LA BATALLA ---
+        function resetBattle() {
+            if(!confirm("¿Estás seguro de reiniciar todas las vidas y puntos?")) return;
+            
+            // Reiniciar Vidas
+            document.querySelectorAll('.heart').forEach(h => h.classList.remove('lost'));
+            // Reiniciar Puntos/Géneros
+            document.querySelectorAll('.dot').forEach(d => d.classList.remove('used'));
+            // Reiniciar Tiempo
+            clearInterval(timer);
+            running = false;
+            time = parseInt(document.getElementById('timeInput').value);
+            updateTimer();
+            document.getElementById('startBtn').innerText = "⏱";
+        }
+
+        // GENERAR TABLA
         const sb = document.getElementById('scoreboard');
         for(let i=1; i<=5; i++) {
             sb.innerHTML += `<div class="player-column">
                 <div class="editable-box" contenteditable="true">Nombre ${i}</div>
                 <div class="lives-container">
-                    <span class="heart" onclick="this.classList.toggle('lost')">❤️</span>
-                    <span class="heart" onclick="this.classList.toggle('lost')">❤️</span>
-                    <span class="heart" onclick="this.classList.toggle('lost')">❤️</span>
-                    <span class="heart" onclick="this.classList.toggle('lost')">❤️</span>
-                    <span class="heart" onclick="this.classList.toggle('lost')">❤️</span>
+                    ${Array(5).fill('<span class="heart" onclick="this.classList.toggle(\'lost\')">❤️</span>').join('')}
                 </div>
-                <div class="editable-box" contenteditable="true" style="font-size:0.8rem">Genero #${i}</div>
+                <div class="editable-box" contenteditable="true" style="font-size:0.75rem">Genero #${i}</div>
                 <div class="genres-container">
-                    <div class="dot" onclick="this.classList.toggle('used')"></div>
-                    <div class="dot" onclick="this.classList.toggle('used')"></div>
-                    <div class="dot" onclick="this.classList.toggle('used')"></div>
-                    <div class="dot" onclick="this.classList.toggle('used')"></div>
-                    <div class="dot" onclick="this.classList.toggle('used')"></div>
+                    ${Array(5).fill('<div class="dot" onclick="this.classList.toggle(\'used\')"></div>').join('')}
                 </div>
             </div>`;
         }
 
-        window.onload = () => { resetTimer(); loadPlaylist('boombap'); };
+        window.onload = () => { 
+            time = 60;
+            updateTimer();
+            loadPlaylist('boombap'); 
+        };
     </script>
 </body>
 </html>
