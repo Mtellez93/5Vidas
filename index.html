@@ -1,326 +1,223 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Simulación Red Bull 5 Vidas — Beats YouTube</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    :root {
-      --primary:#ff3b3b; --bg:#0f0f10; --text:#f1f1f1; --muted:#9aa0a6;
-      --chip:#1f1f22; --chip-active:#2e2e33; --panel:#121214; --border:#222;
-      --accent:#3b82f6;
-    }
-    * { box-sizing: border-box; }
-    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; background:var(--bg); color:var(--text); }
-    header { display:flex; gap:12px; align-items:center; padding:14px 16px; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--bg); z-index:10; }
-    .title { font-weight:800; letter-spacing:.2px; }
-    .chips { display:flex; gap:8px; flex-wrap:wrap; }
-    .chip { border:none; border-radius:999px; padding:8px 14px; background:var(--chip); color:var(--text); cursor:pointer; }
-    .chip.active { background:var(--chip-active); }
-    .spacer { flex:1; }
-    .search { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-    .search input, .search select { padding:8px 10px; border-radius:8px; border:1px solid #333; background:#19191c; color:var(--text); }
-    .search button { padding:8px 12px; border-radius:8px; border:1px solid #333; background:#19191c; color:var(--text); cursor:pointer;}
-    main { display:grid; grid-template-columns: 1fr 340px; gap:16px; padding:16px; }
-    #player { width:100%; aspect-ratio:16/9; background:#000; border-radius:12px; overflow:hidden; }
-    .panel { background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:12px; }
-    .panel h3 { margin:8px 0 12px; }
-    .muted { color:var(--muted); font-size:12px; }
-    .results { margin-top:12px; display:grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap:12px; }
-    .card { background:#141416; border:1px solid #2a2a2e; border-radius:10px; overflow:hidden; cursor:pointer; display:flex; flex-direction:column; }
-    .thumb-wrap { position:relative; }
-    .thumb-wrap img { width:100%; display:block; }
-    .badge { position:absolute; right:8px; bottom:8px; background:rgba(0,0,0,.7); color:#fff; font-size:12px; padding:4px 6px; border-radius:6px; }
-    .card-body { padding:10px; }
-    .card-title { font-size:14px; font-weight:600; line-height:1.25; }
-    .card-sub { font-size:12px; color:var(--muted); margin-top:4px; }
-    .controls { display:flex; gap:8px; flex-wrap:wrap; }
-    .time { font-size:28px; font-weight:800; }
-    .lives { display:flex; gap:6px; }
-    .life { width:16px; height:16px; border-radius:50%; background:var(--primary); opacity:.2; }
-    .life.on { opacity:1; }
-    @media (max-width:980px){ main { grid-template-columns: 1fr; } }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Red Bull 5 Vidas - Oficial</title>
+    
+    <link rel="icon" type="image/png" href="favicon.png">
+
+    <style>
+        body {
+            margin: 0; padding: 0;
+            background: linear-gradient(135deg, #0f1642 0%, #05081c 100%);
+            color: white; font-family: 'Segoe UI', sans-serif;
+            height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        /* SUPERIOR: REPRODUCTOR */
+        .top-section { height: 40%; display: flex; flex-direction: column; background-color: #000; }
+        
+        .media-controls {
+            display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+            gap: 8px; padding: 10px; background: #1a1a2e; border-bottom: 2px solid #333;
+        }
+
+        .input-group { display: flex; gap: 5px; flex-grow: 1; max-width: 250px; }
+        
+        input[type="text"], input[type="number"] {
+            padding: 8px; border-radius: 5px; border: none;
+            background: #fff; color: #333; font-weight: bold; width: 100%;
+        }
+
+        .btn-media {
+            padding: 8px 10px; border: none; border-radius: 5px;
+            cursor: pointer; font-weight: bold; font-size: 0.75rem; text-transform: uppercase;
+        }
+        
+        .btn-yt-load { background-color: #cc0000; color: white; }
+        .btn-playlist { background-color: #333; color: white; border: 1px solid #555; }
+        .btn-timer { background-color: #f7b500; color: #000; }
+        .btn-rst { background-color: #555; color: white; }
+        .btn-reset-all { background-color: #ff4444; color: white; }
+
+        iframe { width: 100%; height: 100%; border: none; flex-grow: 1; }
+
+        /* CRONÓMETRO */
+        .timer-section {
+            background: #000; padding: 5px 15px;
+            display: flex; align-items: center; gap: 15px; border-bottom: 2px solid white;
+        }
+        #timer-display { font-family: monospace; font-size: 1.5rem; font-weight: bold; color: #f7b500; min-width: 70px; }
+        .progress-container { flex-grow: 1; height: 10px; background: #333; border-radius: 10px; overflow: hidden; }
+        #progress-bar { width: 100%; height: 100%; background: #4CAF50; transition: width 1s linear; }
+
+        /* INFERIOR: SCOREBOARD */
+        .bottom-section {
+            height: 60%; 
+            display: flex; 
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 15px;
+            background: radial-gradient(circle at center, #1e2a78 0%, #0f1642 70%);
+            gap: 15px;
+            scroll-snap-type: x mandatory;
+        }
+
+        .player-column {
+            flex: 0 0 85%;
+            scroll-snap-align: center;
+            display: flex; flex-direction: column; align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2); 
+            border-radius: 10px; padding: 10px;
+            max-height: 95%;
+        }
+
+        @media (min-width: 768px) {
+            .player-column { flex: 1; max-width: 18%; }
+            .bottom-section { justify-content: space-around; overflow-x: hidden; }
+            #timer-display { font-size: 2rem; }
+        }
+
+        .editable-box {
+            background: transparent; border: 2px solid white;
+            padding: 5px; text-align: center; width: 90%;
+            font-weight: bold; color: #fff; margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .lives-container { display: flex; gap: 2px; margin-bottom: 10px; justify-content: center; }
+        .heart { cursor: pointer; font-size: 1.4rem; color: #ff0000; user-select: none; }
+        .heart.lost { filter: grayscale(100%); opacity: 0.2; }
+
+        .genres-container {
+            display: flex; flex-direction: column; gap: 8px;
+            justify-content: center; flex-grow: 1; border: 1px solid rgba(255,255,255,0.3);
+            width: 90%; padding: 5px 0; border-radius: 5px;
+        }
+        
+        .dot {
+            width: 24px; height: 24px; background-color: #8ce68c;
+            border-radius: 50%; cursor: pointer; border: 2px solid #fff; margin: 0 auto;
+        }
+        .dot.used { background-color: #444; border-color: #777; }
+
+        .bottom-section::-webkit-scrollbar { height: 8px; }
+        .bottom-section::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+    </style>
 </head>
 <body>
-  <header>
-    <div class="title">Simulación Red Bull 5 Vidas</div>
-    <div class="chips">
-      <button class="chip" data-query="boombap instrumental">BoomBap</button>
-      <button class="chip" data-query="trap instrumental">Trap</button>
-      <button class="chip" data-query="r&b instrumental">R&B</button>
-    </div>
-    <div class="spacer"></div>
-    <div class="search">
-      <input id="q" type="text" placeholder="Buscar (ej. 'boombap beat 90 bpm')" />
-      <input id="bpm" type="number" min="50" max="200" step="1" placeholder="BPM (opcional)" style="width:120px;">
-      <select id="dur">
-        <option value="">Duración: cualquiera</option>
-        <option value="short">Corta (&lt; 4 min)</option>
-        <option value="medium">Media (4–20 min)</option>
-        <option value="long">Larga (&gt; 20 min)</option>
-      </select>
-      <button id="searchBtn">Buscar</button>
-    </div>
-  </header>
 
-  <main>
-    <div>
-      <!-- Player YouTube -->
-      <div id="player"></div>
-
-      <!-- Resultados -->
-      <div class="panel" style="margin-top:12px;">
-        <h3>Resultados</h3>
-        <div id="results" class="results"></div>
-        <p class="muted" id="status"></p>
-      </div>
-    </div>
-
-    <!-- Panel lateral -->
-    <aside class="panel">
-      <h3>Ronda / Timer</h3>
-      <div style="display:flex; align-items:center; justify-content:space-between;">
-        <div>
-          <div class="muted">Cuenta regresiva</div>
-          <div class="time" id="timeDisplay">01:00</div>
+    <div class="top-section">
+        <div class="media-controls">
+            <div class="input-group">
+                <input type="text" id="ytUrl" placeholder="Link YouTube...">
+                <button class="btn-media btn-yt-load" onclick="loadUserVideo()">▶</button>
+            </div>
+            <button class="btn-media btn-playlist" onclick="loadPlaylist('boombap')">BoomBap</button>
+            <button class="btn-media btn-playlist" onclick="loadPlaylist('trap')">Trap</button>
+            <button class="btn-media btn-playlist" onclick="loadPlaylist('redbull')">RB</button>
+            
+            <span style="color:#555;">|</span>
+            
+            <input type="number" id="timeInput" value="60" step="30" min="30" style="width: 55px;">
+            <button class="btn-media btn-timer" id="startBtn" onclick="toggleTimer()">⏱</button>
+            <button class="btn-media btn-rst" onclick="resetTimer()">RST</button>
+            <button class="btn-media btn-reset-all" onclick="resetBattle()">START</button>
         </div>
-        <div class="controls">
-          <button id="startTimer">START</button>
-          <button id="resetTimer">RST</button>
-        </div>
-      </div>
+        <iframe id="mediaFrame" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    </div>
 
-      <h3 style="margin-top:18px;">Vidas</h3>
-      <div class="lives" id="lives">
-        <div class="life on"></div><div class="life on"></div><div class="life on"></div><div class="life on"></div><div class="life on"></div>
-      </div>
-      <div class="controls" style="margin-top:8px;">
-        <button id="loseLife">Perder vida</button>
-        <button id="resetLives">Reset vidas</button>
-      </div>
+    <div class="timer-section">
+        <div id="timer-display">00:60</div>
+        <div class="progress-container"><div id="progress-bar"></div></div>
+    </div>
 
-      <h3 style="margin-top:18px;">Beat directo</h3>
-      <label class="muted">Pega un enlace de YouTube:</label>
-      <div style="display:flex; gap:8px; margin-top:6px;">
-        <input id="beatUrl" type="url" placeholder="https://www.youtube.com/watch?v=..." style="flex:1; padding:8px 10px; border-radius:8px; border:1px solid #333; background:#0f0f10; color:#f1f1f1;">
-        <button id="loadBeatBtn">Cargar</button>
-      </div>
-    </aside>
-  </main>
+    <div class="bottom-section" id="scoreboard"></div>
 
-  <!-- YouTube IFrame Player API -->
-  <script>
-    /*********************** CONFIG ************************/
-    const API_KEY = 'AIzaSyARGxiCsTu1v5dnTFN_um0MKSgDa9dfHhI'; // <- Pega tu API Key aquí
-    const MAX_RESULTS = 12;
-
-    /*********************** YT IFRAME ************************/
-    (function loadYT(){
-      const tag = document.createElement('script');
-      tag.src = "https://www.youtube.com/iframe_api";
-      document.head.appendChild(tag);
-    })();
-
-    let player;
-    function onYouTubeIframeAPIReady(){
-      player = new YT.Player('player', {
-        videoId: null,
-        playerVars: { rel:0, modestbranding:1 },
-        events: { 
-          onReady: e => console.log('YouTube listo'),
-          onError: e => alert('Error al cargar el video. Verifica el enlace.')
+    <script>
+        const frame = document.getElementById('mediaFrame');
+        
+        function loadPlaylist(type) {
+            let id = type === 'boombap' ? "5Xp3y6YcaBw" : type === 'trap' ? "Lp-E3Z7I9YI" : "H_08_PZ8B-M";
+            frame.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1`;
         }
-      });
-    }
-    function loadVideo(id){
-      if (!player) { alert('El reproductor aún no está listo.'); return; }
-      player.loadVideoById(id);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
 
-    /*********************** HELPERS ************************/
-    function getYouTubeId(url){
-      try {
-        const u = new URL(url);
-        if (u.hostname.includes('youtu.be')) return u.pathname.slice(1);
-        if (u.pathname.startsWith('/watch')) return u.searchParams.get('v');
-        if (u.pathname.startsWith('/shorts/')) return u.pathname.split('/')[2];
-        if (u.pathname.startsWith('/embed/')) return u.pathname.split('/')[2];
-        const m = url.match(/(?:v=|\/embed\/|\/shorts\/|youtu\.be\/)([A-Za-z0-9_-]{11})/);
-        return m ? m[1] : null;
-      } catch {
-        const m = url.match(/(?:v=|\/embed\/|\/shorts\/|youtu\.be\/)([A-Za-z0-9_-]{11})/);
-        return m ? m[1] : null;
-      }
-    }
-    function isoDurationToSeconds(iso){
-      // Formato: PT#M#S, PT#H#M#S, etc.
-      const m = iso.match(/PT(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+)S)?/);
-      if (!m) return 0;
-      const h = parseInt(m[1] || '0', 10);
-      const mm = parseInt(m[2] || '0', 10);
-      const s = parseInt(m[3] || '0', 10);
-      return h*3600 + mm*60 + s;
-    }
-    function secondsToMmSs(sec){
-      const m = Math.floor(sec/60).toString().padStart(2,'0');
-      const s = Math.floor(sec%60).toString().padStart(2,'0');
-      return `${m}:${s}`;
-    }
+        function loadUserVideo() {
+            const val = document.getElementById('ytUrl').value;
+            let id = "";
+            if(val.includes('v=')) id = val.split('v=')[1].split('&')[0];
+            else if(val.includes('youtu.be/')) id = val.split('youtu.be/')[1].split('?')[0];
+            if(id) frame.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1`;
+        }
 
-    /*********************** BUSCADOR (YouTube Data API v3) ************************/
-    async function searchYouTube(query, bpm, durationFilter){
-      const status = document.getElementById('status');
-      const resultsEl = document.getElementById('results');
-      resultsEl.innerHTML = '';
-      status.textContent = 'Buscando…';
+        let time, timer, running = false;
+        
+        function toggleTimer() {
+            const btn = document.getElementById('startBtn');
+            if(running) { 
+                clearInterval(timer); 
+                running = false; 
+                btn.innerText = "⏱"; 
+            } else {
+                if(!time || time <= 0) time = parseInt(document.getElementById('timeInput').value);
+                running = true; 
+                btn.innerText = "⏸";
+                timer = setInterval(() => {
+                    time--; 
+                    updateTimer();
+                    if(time <= 0) { 
+                        clearInterval(timer); 
+                        running = false; 
+                        btn.innerText = "⏱"; 
+                        new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg').play().catch(() => {});
+                    }
+                }, 1000);
+            }
+        }
 
-      // construimos q con BPM si se indicó
-      let q = query.trim();
-      if (bpm) q += ` ${bpm} bpm`;
-      const params = new URLSearchParams({
-        key: API_KEY,
-        part: 'snippet',
-        q,
-        type: 'video',
-        maxResults: String(MAX_RESULTS),
-        // videoCategoryId: '10', // música (no siempre necesario/efectivo)
-        order: 'relevance',
-        safeSearch: 'none'
-      });
-      if (durationFilter) params.set('videoDuration', durationFilter); // 'short'|'medium'|'long'
+        function resetTimer() { 
+            clearInterval(timer); 
+            running = false; 
+            time = parseInt(document.getElementById('timeInput').value); 
+            updateTimer(); 
+            document.getElementById('startBtn').innerText = "⏱"; 
+        }
 
-      try {
-        const resp = await fetch(`https://www.googleapis.com/youtube/v3/search?${params.toString()}`);
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        const data = await resp.json();
-        const ids = (data.items || []).map(it => it.id && it.id.videoId).filter(Boolean);
-        if (!ids.length){ status.textContent = 'Sin resultados.'; return; }
+        function updateTimer() {
+            const m = Math.floor(time/60), s = time%60;
+            document.getElementById('timer-display').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            const total = parseInt(document.getElementById('timeInput').value);
+            document.getElementById('progress-bar').style.width = ((time / total) * 100) + "%";
+        }
 
-        // obtener duración con videos endpoint
-        const vParams = new URLSearchParams({
-          key: API_KEY,
-          part: 'contentDetails,snippet,statistics',
-          id: ids.join(',')
-        });
-        const vResp = await fetch(`https://www.googleapis.com/youtube/v3/videos?${vParams.toString()}`);
-        if (!vResp.ok) throw new Error(`HTTP ${vResp.status}`);
-        const vData = await vResp.json();
+        function resetBattle() {
+            if(!confirm("¿Estás seguro de reiniciar todas las vidas y puntos?")) return;
+            document.querySelectorAll('.heart').forEach(h => h.classList.remove('lost'));
+            document.querySelectorAll('.dot').forEach(d => d.classList.remove('used'));
+            resetTimer();
+        }
 
-        // Mapear por id
-        const byId = new Map();
-        (vData.items || []).forEach(item => {
-          const id = item.id;
-          const dur = isoDurationToSeconds(item.contentDetails?.duration || 'PT0S');
-          byId.set(id, {
-            id,
-            title: item.snippet?.title || 'Sin título',
-            channel: item.snippet?.channelTitle || 'Canal',
-            thumb: item.snippet?.thumbnails?.medium?.url || item.snippet?.thumbnails?.default?.url,
-            durationSec: dur
-          });
-        });
+        const sb = document.getElementById('scoreboard');
+        for(let i=1; i<=5; i++) {
+            sb.innerHTML += `<div class="player-column">
+                <div class="editable-box" contenteditable="true">Nombre ${i}</div>
+                <div class="lives-container">
+                    ${Array(5).fill('<span class="heart" onclick="this.classList.toggle(\'lost\')">❤️</span>').join('')}
+                </div>
+                <div class="editable-box" contenteditable="true" style="font-size:0.75rem">Genero #${i}</div>
+                <div class="genres-container">
+                    ${Array(5).fill('<div class="dot" onclick="this.classList.toggle(\'used\')"></div>').join('')}
+                </div>
+            </div>`;
+        }
 
-        // Render
-        ids.forEach(id => {
-          const info = byId.get(id);
-          if (!info) return;
-          const card = document.createElement('div');
-          card.className = 'card';
-          card.innerHTML = `
-            <div class="thumb-wrap">
-              <img src="${info.thumb}" alt="${info.title}">
-              <div class="badge">${secondsToMmSs(info.durationSec)}</div>
-            </div>
-            <div class="card-body">
-              <div class="card-title">${escapeHtml(info.title)}</div>
-              <div class="card-sub">${escapeHtml(info.channel)}</div>
-            </div>
-          `;
-          card.addEventListener('click', () => loadVideo(info.id));
-          resultsEl.appendChild(card);
-        });
-
-        status.textContent = `Resultados: ${ids.length}`;
-      } catch (err) {
-        console.error(err);
-        status.textContent = 'Error en la búsqueda. Revisa la API Key y los permisos.';
-        alert('No se pudo buscar. Verifica tu API Key, que la API esté habilitada y las restricciones.');
-      }
-    }
-
-    function escapeHtml(str){
-      return String(str).replace(/[&<>"']/g, s => ({
-        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-      }[s]));
-    }
-
-    /*********************** UI EVENTS ************************/
-    document.getElementById('searchBtn').addEventListener('click', () => {
-      const q = document.getElementById('q').value;
-      const bpm = document.getElementById('bpm').value;
-      const dur = document.getElementById('dur').value;
-      searchYouTube(q, bpm, dur);
-    });
-
-    document.querySelectorAll('.chip').forEach(chip => {
-      chip.addEventListener('click', () => {
-        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-        chip.classList.add('active');
-        const bpm = document.getElementById('bpm').value;
-        const dur = document.getElementById('dur').value;
-        searchYouTube(chip.dataset.query, bpm, dur);
-      });
-    });
-
-    // Cargar desde URL directa
-    document.getElementById('loadBeatBtn').addEventListener('click', () => {
-      const url = document.getElementById('beatUrl').value.trim();
-      const id = getYouTubeId(url);
-      if (!id) { alert('Enlace inválido.'); return; }
-      loadVideo(id);
-    });
-
-    /*********************** TIMER + VIDAS ************************/
-    let timer = null, remaining = 60;
-    const timeDisplay = document.getElementById('timeDisplay');
-    function renderTime(sec){
-      const m = Math.floor(sec/60).toString().padStart(2,'0');
-      const s = Math.floor(sec%60).toString().padStart(2,'0');
-      timeDisplay.textContent = `${m}:${s}`;
-    }
-    document.getElementById('startTimer').addEventListener('click', () => {
-      if(timer) return;
-      timer = setInterval(() => {
-        remaining--;
-        renderTime(remaining);
-        if(remaining<=0){ clearInterval(timer); timer=null; remaining=60; renderTime(remaining); }
-      }, 1000);
-    });
-    document.getElementById('resetTimer').addEventListener('click', () => {
-      if(timer){ clearInterval(timer); timer=null; }
-      remaining = 60; renderTime(remaining);
-    });
-    renderTime(remaining);
-
-    // Vidas (5)
-    let lives = 5;
-    function renderLives(){
-      const container = document.getElementById('lives');
-      [...container.children].forEach((dot, idx) => {
-        dot.classList.toggle('on', idx < lives);
-      });
-    }
-    document.getElementById('loseLife').addEventListener('click', () => {
-      if (lives > 0) lives--;
-      renderLives();
-    });
-    document.getElementById('resetLives').addEventListener('click', () => {
-      lives = 5; renderLives();
-    });
-    renderLives();
-  </script>
+        window.onload = () => { 
+            time = 60;
+            updateTimer();
+            loadPlaylist('boombap'); 
+        };
+    </script>
 </body>
 </html>
