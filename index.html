@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Red Bull 5 Vidas - No Oficial</title>
+    <title>Red Bull 5 Vidas - Oficial</title>
     
     <link rel="icon" type="image/png" href="favicon.png">
 
@@ -40,7 +40,7 @@
         .progress-container { flex-grow: 1; height: 10px; background: #333; border-radius: 10px; overflow: hidden; }
         #progress-bar { width: 100%; height: 100%; background: #4CAF50; transition: width 1s linear; }
 
-        /* SECCIÓN INFERIOR (EL TABLERO) */
+        /* SECCIÓN INFERIOR */
         .bottom-section {
             height: 60%; 
             display: flex; 
@@ -52,11 +52,11 @@
         }
 
         .player-column {
-            flex: 0 0 280px; /* Ancho fijo para evitar que se colapsen */
+            flex: 0 0 260px; /* Un poco más estrecha para móvil */
             display: flex; flex-direction: column; align-items: center;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.2); 
-            border-radius: 10px; padding: 15px;
+            border-radius: 10px; padding: 12px;
             height: fit-content;
         }
 
@@ -75,18 +75,29 @@
         .heart { cursor: pointer; font-size: 1.5rem; color: #ff0000; user-select: none; }
         .heart.lost { filter: grayscale(100%); opacity: 0.2; }
 
-        .genres-list { display: flex; flex-direction: column; width: 100%; gap: 8px; }
+        /* AJUSTES DE GÉNEROS Y PUNTOS */
+        .genres-list { display: flex; flex-direction: column; width: 100%; gap: 6px; }
         .genre-item {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 6px 12px; background: rgba(255, 255, 255, 0.1); border-radius: 5px;
+            padding: 5px 10px; background: rgba(255, 255, 255, 0.1); border-radius: 5px;
         }
         .genre-name-input {
             background: transparent; border: none; color: white;
-            font-weight: bold; text-transform: uppercase; font-size: 0.8rem;
-            width: 80%; outline: none;
+            font-weight: bold; text-transform: uppercase; font-size: 0.75rem;
+            width: 65%; /* MÁS CHICO PARA DAR ESPACIO */
+            outline: none;
+            padding-right: 5px;
         }
-        .dot { width: 22px; height: 22px; background-color: #8ce68c; border-radius: 50%; cursor: pointer; border: 2px solid #fff; }
+        .dot { 
+            width: 20px; height: 20px; /* UN POCO MÁS COMPACTO */
+            background-color: #8ce68c; border-radius: 50%; 
+            cursor: pointer; border: 2px solid #fff; 
+            flex-shrink: 0; /* Evita que el botón se deforme */
+        }
         .dot.used { background-color: #444; border-color: #777; }
+
+        .bottom-section::-webkit-scrollbar { height: 8px; }
+        .bottom-section::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -121,7 +132,6 @@
         const sb = document.getElementById('scoreboard');
         const defaultGeneros = ["Boom Bap", "Trap", "Reggae", "Rock", "Doble Tempo"];
 
-        // Función para renderizar el tablero
         function renderBoard() {
             sb.innerHTML = ""; 
             for(let i=1; i<=5; i++) {
@@ -145,14 +155,12 @@
             }
         }
 
-        // Sincronizar filas
         function syncRow(idx, val) {
             document.querySelectorAll(`.row-${idx}`).forEach(input => {
                 input.value = val;
             });
         }
 
-        // Lógica de video
         function loadPlaylist(type) {
             let id = type === 'boombap' ? "O0mS9_8G-Yk" : type === 'trap' ? "NpEaa2P7qZI" : "H_08_PZ8B-M";
             frame.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
@@ -160,11 +168,12 @@
 
         function loadUserVideo() {
             const val = document.getElementById('ytUrl').value;
-            let id = val.includes('v=') ? val.split('v=')[1].split('&')[0] : val.split('youtu.be/')[1];
+            let id = "";
+            if (val.includes('v=')) id = val.split('v=')[1].split('&')[0];
+            else if (val.includes('youtu.be/')) id = val.split('youtu.be/')[1].split('?')[0];
             if(id) frame.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
         }
 
-        // Lógica de tiempo
         let time, timer, running = false;
         function toggleTimer() {
             if(running) { clearInterval(timer); running = false; document.getElementById('startBtn').innerText = "⏱"; }
