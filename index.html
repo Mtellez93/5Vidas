@@ -124,9 +124,14 @@
             <input type="number" id="timeInput" value="60" step="30" min="30" style="width: 55px;">
             <button class="btn-media btn-timer" id="startBtn" onclick="toggleTimer()">⏱</button>
             <button class="btn-media btn-rst" onclick="resetTimer()">RST</button>
-            <button class="btn-media btn-reset-all" onclick="resetBattle()">START</button>
+            <button class="btn-media btn-reset-all" onclick="resetBattle()">REINICIAR TODO</button>
         </div>
-        <iframe id="mediaFrame" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        <iframe id="mediaFrame" 
+                src="" 
+                allow="autoplay; encrypted-media; picture-in-picture" 
+                referrerpolicy="no-referrer-when-downgrade"
+                allowfullscreen>
+        </iframe>
     </div>
 
     <div class="timer-section">
@@ -139,9 +144,16 @@
     <script>
         const frame = document.getElementById('mediaFrame');
         
+        // --- IDS DE VIDEOS CON INSERCIÓN GARANTIZADA ---
         function loadPlaylist(type) {
-            let id = type === 'boombap' ? "5Xp3y6YcaBw" : type === 'trap' ? "Lp-E3Z7I9YI" : "H_08_PZ8B-M";
-            frame.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1`;
+            let id = "";
+            switch(type) {
+                case 'boombap': id = "O0mS9_8G-Yk"; break; // Beat Boom Bap 
+                case 'trap': id = "NpEaa2P7qZI"; break;    // Beat Trap
+                case 'redbull': id = "H_08_PZ8B-M"; break; // Beat RB Oficial
+            }
+            // Usamos youtube.com/embed/ directamente
+            frame.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
         }
 
         function loadUserVideo() {
@@ -149,7 +161,7 @@
             let id = "";
             if(val.includes('v=')) id = val.split('v=')[1].split('&')[0];
             else if(val.includes('youtu.be/')) id = val.split('youtu.be/')[1].split('?')[0];
-            if(id) frame.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1`;
+            if(id) frame.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
         }
 
         let time, timer, running = false;
@@ -202,11 +214,11 @@
         const sb = document.getElementById('scoreboard');
         for(let i=1; i<=5; i++) {
             sb.innerHTML += `<div class="player-column">
-                <div class="editable-box" contenteditable="true">Nombre ${i}</div>
+                <div class="editable-box" contenteditable="true">MC ${i}</div>
                 <div class="lives-container">
                     ${Array(5).fill('<span class="heart" onclick="this.classList.toggle(\'lost\')">❤️</span>').join('')}
                 </div>
-                <div class="editable-box" contenteditable="true" style="font-size:0.75rem">Genero #${i}</div>
+                <div class="editable-box" contenteditable="true" style="font-size:0.75rem">Técnicas / Puntos</div>
                 <div class="genres-container">
                     ${Array(5).fill('<div class="dot" onclick="this.classList.toggle(\'used\')"></div>').join('')}
                 </div>
