@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Red Bull 5 Vidas - Sincronizado</title>
+    <title>Red Bull 5 Vidas - No Oficial</title>
     
     <link rel="icon" type="image/png" href="favicon.png">
 
@@ -15,118 +15,78 @@
             height: 100vh; display: flex; flex-direction: column; overflow: hidden;
         }
 
-        /* SUPERIOR: REPRODUCTOR */
+        /* SECCIÓN SUPERIOR */
         .top-section { height: 40%; display: flex; flex-direction: column; background-color: #000; }
-        
         .media-controls {
             display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
             gap: 8px; padding: 10px; background: #1a1a2e; border-bottom: 2px solid #333;
         }
-
         .input-group { display: flex; gap: 5px; flex-grow: 1; max-width: 250px; }
-        
         input[type="text"], input[type="number"] {
             padding: 8px; border-radius: 5px; border: none;
             background: #fff; color: #333; font-weight: bold; width: 100%;
         }
-
-        .btn-media {
-            padding: 8px 10px; border: none; border-radius: 5px;
-            cursor: pointer; font-weight: bold; font-size: 0.75rem; text-transform: uppercase;
-        }
-        
+        .btn-media { padding: 8px 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.75rem; text-transform: uppercase; }
         .btn-yt-load { background-color: #cc0000; color: white; }
         .btn-playlist { background-color: #333; color: white; border: 1px solid #555; }
         .btn-timer { background-color: #f7b500; color: #000; }
         .btn-rst { background-color: #555; color: white; }
         .btn-reset-all { background-color: #ff4444; color: white; }
-
         iframe { width: 100%; height: 100%; border: none; flex-grow: 1; }
 
         /* CRONÓMETRO */
-        .timer-section {
-            background: #000; padding: 5px 15px;
-            display: flex; align-items: center; gap: 15px; border-bottom: 2px solid white;
-        }
+        .timer-section { background: #000; padding: 5px 15px; display: flex; align-items: center; gap: 15px; border-bottom: 2px solid white; }
         #timer-display { font-family: monospace; font-size: 1.5rem; font-weight: bold; color: #f7b500; min-width: 70px; }
         .progress-container { flex-grow: 1; height: 10px; background: #333; border-radius: 10px; overflow: hidden; }
         #progress-bar { width: 100%; height: 100%; background: #4CAF50; transition: width 1s linear; }
 
-        /* INFERIOR: SCOREBOARD */
+        /* SECCIÓN INFERIOR (EL TABLERO) */
         .bottom-section {
             height: 60%; 
             display: flex; 
             overflow-x: auto;
-            overflow-y: hidden;
             padding: 15px;
             background: radial-gradient(circle at center, #1e2a78 0%, #0f1642 70%);
             gap: 15px;
-            scroll-snap-type: x mandatory;
+            box-sizing: border-box;
         }
 
         .player-column {
-            flex: 0 0 85%;
-            scroll-snap-align: center;
+            flex: 0 0 280px; /* Ancho fijo para evitar que se colapsen */
             display: flex; flex-direction: column; align-items: center;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.2); 
-            border-radius: 10px; padding: 10px;
-            max-height: 95%;
+            border-radius: 10px; padding: 15px;
+            height: fit-content;
         }
 
-        @media (min-width: 768px) {
-            .player-column { flex: 1; max-width: 18%; }
+        @media (min-width: 1024px) {
+            .player-column { flex: 1; min-width: 18%; }
             .bottom-section { justify-content: space-around; overflow-x: hidden; }
-            #timer-display { font-size: 2rem; }
         }
 
         .editable-box {
             background: transparent; border: 2px solid white;
             padding: 5px; text-align: center; width: 90%;
-            font-weight: bold; color: #fff; margin-bottom: 8px;
-            font-size: 0.9rem;
+            font-weight: bold; color: #fff; margin-bottom: 10px;
         }
 
-        .lives-container { display: flex; gap: 2px; margin-bottom: 10px; justify-content: center; }
-        .heart { cursor: pointer; font-size: 1.4rem; color: #ff0000; user-select: none; }
+        .lives-container { display: flex; gap: 5px; margin-bottom: 15px; }
+        .heart { cursor: pointer; font-size: 1.5rem; color: #ff0000; user-select: none; }
         .heart.lost { filter: grayscale(100%); opacity: 0.2; }
 
-        .genres-list {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            gap: 6px;
-            margin-top: 5px;
-        }
-
+        .genres-list { display: flex; flex-direction: column; width: 100%; gap: 8px; }
         .genre-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 4px 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 6px 12px; background: rgba(255, 255, 255, 0.1); border-radius: 5px;
         }
-
-        .genre-name {
-            font-size: 0.75rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            border: none;
-            background: transparent;
-            color: white;
-            width: 80%;
-            outline: none;
+        .genre-name-input {
+            background: transparent; border: none; color: white;
+            font-weight: bold; text-transform: uppercase; font-size: 0.8rem;
+            width: 80%; outline: none;
         }
-        
-        .dot {
-            width: 18px; height: 18px; background-color: #8ce68c;
-            border-radius: 50%; cursor: pointer; border: 2px solid #fff;
-        }
+        .dot { width: 22px; height: 22px; background-color: #8ce68c; border-radius: 50%; cursor: pointer; border: 2px solid #fff; }
         .dot.used { background-color: #444; border-color: #777; }
-
-        .bottom-section::-webkit-scrollbar { height: 8px; }
-        .bottom-section::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -134,21 +94,19 @@
     <div class="top-section">
         <div class="media-controls">
             <div class="input-group">
-                <input type="text" id="ytUrl" placeholder="Link YouTube...">
+                <input type="text" id="ytUrl" placeholder="URL de YouTube...">
                 <button class="btn-media btn-yt-load" onclick="loadUserVideo()">▶</button>
             </div>
             <button class="btn-media btn-playlist" onclick="loadPlaylist('boombap')">BoomBap</button>
             <button class="btn-media btn-playlist" onclick="loadPlaylist('trap')">Trap</button>
             <button class="btn-media btn-playlist" onclick="loadPlaylist('redbull')">RB</button>
-            
             <span style="color:#555;">|</span>
-            
             <input type="number" id="timeInput" value="60" step="30" min="30" style="width: 55px;">
             <button class="btn-media btn-timer" id="startBtn" onclick="toggleTimer()">⏱</button>
             <button class="btn-media btn-rst" onclick="resetTimer()">RST</button>
             <button class="btn-media btn-reset-all" onclick="resetBattle()">REINICIAR TODO</button>
         </div>
-        <iframe id="mediaFrame" src="" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+        <iframe id="mediaFrame" src="" allow="autoplay; encrypted-media" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
     </div>
 
     <div class="timer-section">
@@ -160,89 +118,85 @@
 
     <script>
         const frame = document.getElementById('mediaFrame');
-        
-        function loadPlaylist(type) {
-            let id = "";
-            switch(type) {
-                case 'boombap': id = "O0mS9_8G-Yk"; break;
-                case 'trap': id = "NpEaa2P7qZI"; break;
-                case 'redbull': id = "H_08_PZ8B-M"; break;
+        const sb = document.getElementById('scoreboard');
+        const defaultGeneros = ["Boom Bap", "Trap", "Reggae", "Rock", "Doble Tempo"];
+
+        // Función para renderizar el tablero
+        function renderBoard() {
+            sb.innerHTML = ""; 
+            for(let i=1; i<=5; i++) {
+                let column = document.createElement('div');
+                column.className = 'player-column';
+                column.innerHTML = `
+                    <div class="editable-box" contenteditable="true">MC ${i}</div>
+                    <div class="lives-container">
+                        ${Array(5).fill('<span class="heart" onclick="this.classList.toggle(\'lost\')">❤️</span>').join('')}
+                    </div>
+                    <div class="genres-list">
+                        ${defaultGeneros.map((g, idx) => `
+                            <div class="genre-item">
+                                <input type="text" class="genre-name-input row-${idx}" value="${g}" oninput="syncRow(${idx}, this.value)">
+                                <div class="dot" onclick="this.classList.toggle('used')"></div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                sb.appendChild(column);
             }
+        }
+
+        // Sincronizar filas
+        function syncRow(idx, val) {
+            document.querySelectorAll(`.row-${idx}`).forEach(input => {
+                input.value = val;
+            });
+        }
+
+        // Lógica de video
+        function loadPlaylist(type) {
+            let id = type === 'boombap' ? "O0mS9_8G-Yk" : type === 'trap' ? "NpEaa2P7qZI" : "H_08_PZ8B-M";
             frame.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
         }
 
         function loadUserVideo() {
             const val = document.getElementById('ytUrl').value;
-            let id = "";
-            if(val.includes('v=')) id = val.split('v=')[1].split('&')[0];
-            else if(val.includes('youtu.be/')) id = val.split('youtu.be/')[1].split('?')[0];
+            let id = val.includes('v=') ? val.split('v=')[1].split('&')[0] : val.split('youtu.be/')[1];
             if(id) frame.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
         }
 
+        // Lógica de tiempo
         let time, timer, running = false;
-        
         function toggleTimer() {
-            const btn = document.getElementById('startBtn');
-            if(running) { 
-                clearInterval(timer); 
-                running = false; 
-                btn.innerText = "⏱"; 
-            } else {
+            if(running) { clearInterval(timer); running = false; document.getElementById('startBtn').innerText = "⏱"; }
+            else {
                 if(!time || time <= 0) time = parseInt(document.getElementById('timeInput').value);
-                running = true; 
-                btn.innerText = "⏸";
+                running = true; document.getElementById('startBtn').innerText = "⏸";
                 timer = setInterval(() => {
-                    time--; 
-                    updateTimer();
-                    if(time <= 0) { 
-                        clearInterval(timer); 
-                        running = false; 
-                        btn.innerText = "⏱"; 
-                        new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg').play().catch(() => {});
-                    }
+                    time--; updateTimer();
+                    if(time <= 0) { clearInterval(timer); running = false; document.getElementById('startBtn').innerText = "⏱"; }
                 }, 1000);
             }
         }
-
-        function resetTimer() { 
-            clearInterval(timer); 
-            running = false; 
-            time = parseInt(document.getElementById('timeInput').value); 
-            updateTimer(); 
-            document.getElementById('startBtn').innerText = "⏱"; 
-        }
-
+        function resetTimer() { clearInterval(timer); running = false; time = parseInt(document.getElementById('timeInput').value); updateTimer(); document.getElementById('startBtn').innerText = "⏱"; }
         function updateTimer() {
             const m = Math.floor(time/60), s = time%60;
             document.getElementById('timer-display').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            const total = parseInt(document.getElementById('timeInput').value);
-            document.getElementById('progress-bar').style.width = ((time / total) * 100) + "%";
+            document.getElementById('progress-bar').style.width = (time / parseInt(document.getElementById('timeInput').value) * 100) + "%";
         }
 
         function resetBattle() {
-            if(!confirm("¿Estás seguro de reiniciar todas las vidas y puntos?")) return;
-            document.querySelectorAll('.heart').forEach(h => h.classList.remove('lost'));
-            document.querySelectorAll('.dot').forEach(d => d.classList.remove('used'));
+            if(confirm("¿Reiniciar todo?")) {
+                document.querySelectorAll('.heart').forEach(h => h.classList.remove('lost'));
+                document.querySelectorAll('.dot').forEach(d => d.classList.remove('used'));
+                resetTimer();
+            }
+        }
+
+        window.onload = () => {
+            renderBoard();
             resetTimer();
-        }
-
-        // --- LÓGICA DE SINCRONIZACIÓN DE GÉNEROS ---
-        function syncGenres(rowIndex, newValue) {
-            // Busca todos los inputs que pertenecen a la misma fila en todas las columnas
-            const allInputs = document.querySelectorAll(`.genre-row-${rowIndex}`);
-            allInputs.forEach(input => {
-                input.value = newValue;
-            });
-        }
-
-        // GENERAR SCOREBOARD
-        const sb = document.getElementById('scoreboard');
-        const defaultGeneros = ["Boom Bap", "Trap", "Reggae", "Rock", "Doble Tempo"];
-
-        for(let i=1; i<=5; i++) {
-            let columnHtml = `
-            <div class="player-column">
-                <div class="editable-box" contenteditable="true">MC ${i}</div>
-                <div class="lives-container">
-                    ${Array(5).fill('<span class="heart" onclick="this.classList.toggle(\'lost\')">❤️</span>').join('')}
-                </div>
+            loadPlaylist('boombap');
+        };
+    </script>
+</body>
+</html>
