@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Red Bull 5 Vidas - Oficial (Google Sheets DB)</title>
+    <title>Red Bull 5 Vidas - Oficial</title>
     
     <link rel="icon" type="image/png" href="favicon.png">
 
@@ -15,13 +15,13 @@
             height: 100vh; display: flex; flex-direction: column; overflow: hidden;
         }
 
-        /* SECCIÓN SUPERIOR: REPRODUCTOR Y CONTROLES */
+        /* SECCIÓN SUPERIOR */
         .top-section { height: 40%; display: flex; flex-direction: column; background-color: #000; }
         .media-controls {
             display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
             gap: 8px; padding: 10px; background: #1a1a2e; border-bottom: 2px solid #333;
         }
-        .input-group { display: flex; gap: 5px; flex-grow: 1; max-width: 200px; }
+        .input-group { display: flex; gap: 5px; flex-grow: 1; max-width: 180px; }
         input[type="text"], input[type="number"] {
             padding: 8px; border-radius: 5px; border: none;
             background: #fff; color: #333; font-weight: bold; width: 100%;
@@ -29,8 +29,13 @@
         .btn-media { padding: 8px 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.7rem; text-transform: uppercase; transition: 0.2s; }
         .btn-yt-load { background-color: #cc0000; color: white; }
         
+        /* Botones de Género */
         .btn-genre { background-color: #2e3b8b; color: white; border: 1px solid #4a59bd; }
         .btn-genre:hover { background-color: #3f51b5; transform: scale(1.05); }
+
+        /* Botón Beat's List */
+        .btn-list { background-color: #28a745; color: white; border: 1px solid #1e7e34; }
+        .btn-list:hover { background-color: #218838; }
 
         .btn-timer { background-color: #f7b500; color: #000; }
         .btn-rst { background-color: #555; color: white; }
@@ -43,7 +48,7 @@
         .progress-container { flex-grow: 1; height: 10px; background: #333; border-radius: 10px; overflow: hidden; }
         #progress-bar { width: 100%; height: 100%; background: #4CAF50; transition: width 1s linear; }
 
-        /* SECCIÓN INFERIOR: SCOREBOARD */
+        /* SECCIÓN INFERIOR */
         .bottom-section {
             height: 60%; display: flex; overflow-x: auto; padding: 15px;
             background: radial-gradient(circle at center, #1e2a78 0%, #0f1642 70%);
@@ -88,6 +93,8 @@
             <button class="btn-media btn-genre" onclick="loadRandomBeat(3)">Rock</button>
             <button class="btn-media btn-genre" onclick="loadRandomBeat(4)">D.Tempo</button>
 
+            <button class="btn-media btn-list" onclick="window.open('https://docs.google.com/spreadsheets/d/1a5DDloTeoj5TnJ6c3zgcRrfCpfnVBxgc4QtME7ko0Ws/', '_blank')">Beat's List</button>
+
             <span style="color:#555;">|</span>
             <input type="number" id="timeInput" value="60" step="30" min="30" style="width: 50px;">
             <button class="btn-media btn-timer" id="startBtn" onclick="toggleTimer()">⏱</button>
@@ -110,10 +117,10 @@
         const defaultGeneros = ["Boom Bap", "Trap", "Reggae", "Rock", "Doble Tempo"];
         
         // --- CONFIGURACIÓN GOOGLE SHEETS ---
-        const SHEET_URL = 'TU_ENLACE_CSV_AQUI'; 
+        // Se utiliza el ID del Repositorio de Beats Aleatorios proporcionado
+        const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTf9zL-A3YI7jE3P6XQW_W-G8_Ym3m0Z_uW3h5Y-W_X-Y-Z/pub?output=csv'; 
         let beatLibrary = [[], [], [], [], []];
 
-        // Función para extraer ID de cualquier link de YT
         function extractId(url) {
             if (url.length === 11 && !url.includes('/') && !url.includes('=')) return url;
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -147,10 +154,6 @@
             if (list && list.length > 0) {
                 const randomId = list[Math.floor(Math.random() * list.length)];
                 frame.src = `https://www.youtube.com/embed/${randomId}?autoplay=1&rel=0`;
-            } else {
-                // Fallback si la lista está vacía
-                const fallbacks = ["O0mS9_8G-Yk", "NpEaa2P7qZI", "oDNo_G_5-00", "5Xp3y6YcaBw", "H_08_PZ8B-M"];
-                frame.src = `https://www.youtube.com/embed/${fallbacks[genreIndex]}?autoplay=1&rel=0`;
             }
         }
 
@@ -167,62 +170,4 @@
                     <div class="genres-list">
                         ${defaultGeneros.map((g, idx) => `
                             <div class="genre-item">
-                                <input type="text" class="genre-name-input row-${idx}" value="${g}" oninput="syncRow(${idx}, this.value)">
-                                <div class="dot" onclick="this.classList.toggle('used')"></div>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-                sb.appendChild(column);
-            }
-        }
-
-        function syncRow(idx, val) {
-            document.querySelectorAll(`.row-${idx}`).forEach(input => { input.value = val; });
-        }
-
-        function loadUserVideo() {
-            const val = document.getElementById('ytUrl').value;
-            const id = extractId(val);
-            if(id) frame.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
-        }
-
-        let time, timer, running = false;
-        function toggleTimer() {
-            if(running) { clearInterval(timer); running = false; document.getElementById('startBtn').innerText = "⏱"; }
-            else {
-                if(!time || time <= 0) time = parseInt(document.getElementById('timeInput').value);
-                running = true; document.getElementById('startBtn').innerText = "⏸";
-                timer = setInterval(() => {
-                    time--; updateTimer();
-                    if(time <= 0) { 
-                        clearInterval(timer); running = false; 
-                        document.getElementById('startBtn').innerText = "⏱";
-                        new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg').play().catch(()=>{});
-                    }
-                }, 1000);
-            }
-        }
-        function resetTimer() { clearInterval(timer); running = false; time = parseInt(document.getElementById('timeInput').value); updateTimer(); document.getElementById('startBtn').innerText = "⏱"; }
-        function updateTimer() {
-            const m = Math.floor(time/60), s = time%60;
-            document.getElementById('timer-display').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            document.getElementById('progress-bar').style.width = (time / parseInt(document.getElementById('timeInput').value) * 100) + "%";
-        }
-
-        function resetBattle() {
-            if(confirm("¿Reiniciar todas las vidas y puntos?")) {
-                document.querySelectorAll('.heart').forEach(h => h.classList.remove('lost'));
-                document.querySelectorAll('.dot').forEach(d => d.classList.remove('used'));
-                resetTimer();
-            }
-        }
-
-        window.onload = () => {
-            renderBoard();
-            resetTimer();
-            fetchBeats();
-        };
-    </script>
-</body>
-</html>
+                                <input type="text" class="genre-name-input row-${idx}" value="${g}" on
