@@ -3,149 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador Red Bull 5 Vidas</title>
+    <title>Simulador Red Bull 5 Vidas + Cronómetro</title>
     <style>
-        /* ESTILOS GENERALES */
-        body {
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(135deg, #0f1642 0%, #05081c 100%);
-            color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            height: 100vh;
+        /* ESTILOS ANTERIORES */
+        body { margin: 0; padding: 0; background: linear-gradient(135deg, #0f1642 0%, #05081c 100%); color: white; font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        .top-section { height: 40%; display: flex; flex-direction: column; background-color: #000; position: relative; }
+        .media-controls { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; padding: 10px; background: #1a1a2e; border-bottom: 2px solid #333; }
+        .input-group { display: flex; gap: 5px; }
+        input[type="text"], input[type="number"] { padding: 8px; border-radius: 5px; border: none; background: #fff; color: #333; }
+        .btn-media { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.9rem; text-transform: uppercase; }
+        .btn-yt-load { background-color: #cc0000; color: white; }
+        .btn-timer { background-color: #f7b500; color: #000; }
+        iframe { width: 100%; height: 100%; border: none; flex-grow: 1; }
+
+        /* --- ESTILOS DEL CRONÓMETRO --- */
+        .timer-section {
+            background: #000;
+            padding: 5px 20px;
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            border-bottom: 2px solid white;
+        }
+        #timer-display {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 2rem;
+            font-weight: bold;
+            min-width: 80px;
+            color: #f7b500;
+        }
+        .progress-container {
+            flex-grow: 1;
+            height: 20px;
+            background: #333;
+            border-radius: 10px;
             overflow: hidden;
         }
-
-        /* --- BARRA SUPERIOR (MEDIA) MEJORADA --- */
-        .top-section {
-            height: 45%; /* Un poco más alto para ver mejor el video */
-            display: flex;
-            flex-direction: column;
-            background-color: #000;
-            position: relative;
-        }
-
-        .media-controls {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            background: #1a1a2e;
-            border-bottom: 2px solid #333;
-        }
-
-        .input-group {
-            display: flex;
-            gap: 5px;
-        }
-
-        input[type="text"] {
-            padding: 8px;
-            border-radius: 5px;
-            border: none;
-            width: 200px;
-            background: #fff;
-            color: #333;
-        }
-
-        .btn-media {
-            padding: 8px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 0.9rem;
-            transition: all 0.2s;
-            text-transform: uppercase;
-        }
-
-        /* Colores de botones */
-        .btn-yt-load { background-color: #cc0000; color: white; }
-        .btn-playlist { background-color: #333; color: white; border: 1px solid #555; }
-        .btn-playlist:hover { background-color: #555; }
-        .btn-sp { background-color: #1DB954; color: white; }
-
-        iframe {
+        #progress-bar {
             width: 100%;
             height: 100%;
-            border: none;
-            flex-grow: 1;
+            background: #4CAF50;
+            transition: width 0.1s linear, background-color 0.5s;
         }
 
-        /* --- SECCIÓN INFERIOR (SCOREBOARD) --- */
-        .bottom-section {
-            height: 55%;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            background: radial-gradient(circle at center, #1e2a78 0%, #0f1642 70%);
-            border-top: 4px solid white;
-        }
-
-        .player-column {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 18%;
-            height: 95%;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            padding: 5px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
-
-        .editable-box {
-            background: transparent;
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 4px;
-            padding: 5px;
-            text-align: center;
-            width: 85%;
-            font-weight: bold;
-            font-size: 1.1rem;
-            margin-bottom: 5px;
-            cursor: text;
-            color: #fff;
-        }
-        
-        .editable-box:focus { background: rgba(255,255,255,0.1); outline: none; border-color: #f7b500; }
-
-        /* VIDAS */
-        .lives-container {
-            display: flex;
-            gap: 2px;
-            margin-bottom: 10px;
-            font-size: 1.2rem;
-        }
-        .heart { cursor: pointer; transition: filter 0.2s; user-select: none; padding: 2px;}
+        /* SCOREBOARD */
+        .bottom-section { height: 50%; padding: 10px 20px; display: flex; justify-content: space-around; align-items: center; background: radial-gradient(circle at center, #1e2a78 0%, #0f1642 70%); border-top: 4px solid white; }
+        .player-column { display: flex; flex-direction: column; align-items: center; width: 18%; height: 95%; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 10px; padding: 5px; }
+        .editable-box { background: transparent; border: 1px solid rgba(255,255,255,0.3); border-radius: 4px; padding: 5px; text-align: center; width: 85%; font-weight: bold; font-size: 1.1rem; margin-bottom: 5px; color: #fff; }
+        .lives-container { display: flex; gap: 2px; margin-bottom: 10px; font-size: 1.2rem; }
+        .heart { cursor: pointer; transition: filter 0.2s; user-select: none; }
         .heart.lost { filter: grayscale(100%) brightness(40%); opacity: 0.5; }
-
-        /* CIRCULOS GENEROS */
-        .genres-container {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            align-items: center;
-            flex-grow: 1;
-            justify-content: center;
-        }
-        .dot {
-            width: 20px;
-            height: 20px;
-            background-color: #4CAF50;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid #fff;
-            transition: background-color 0.2s;
-        }
+        .genres-container { display: flex; flex-direction: column; gap: 10px; align-items: center; flex-grow: 1; justify-content: center; }
+        .dot { width: 20px; height: 20px; background-color: #4CAF50; border-radius: 50%; cursor: pointer; border: 2px solid #fff; }
         .dot.used { background-color: #444; border-color: #666; }
-
     </style>
 </head>
 <body>
@@ -153,115 +63,116 @@
     <div class="top-section">
         <div class="media-controls">
             <div class="input-group">
-                <input type="text" id="ytUrl" placeholder="Pega link de YouTube aquí...">
+                <input type="text" id="ytUrl" placeholder="Link YouTube...">
                 <button class="btn-media btn-yt-load" onclick="loadUserVideo()">▶ Cargar</button>
             </div>
-            
-            <span style="color:#888; margin: 0 10px;">|</span>
-            <button class="btn-media btn-playlist" onclick="loadPlaylist('boombap')">🎧 Boom Bap</button>
-            <button class="btn-media btn-playlist" onclick="loadPlaylist('trap')">🔥 Trap / 808</button>
-            <button class="btn-media btn-playlist" onclick="loadPlaylist('redbull')">🐂 Oficial RB</button>
-            
-            <span style="color:#888; margin: 0 10px;">|</span>
-            <button class="btn-media btn-sp" onclick="loadSpotify()">🟢 Spotify</button>
+            <span style="color:#888;">|</span>
+            <input type="number" id="timeInput" value="60" style="width: 50px;" title="Segundos">
+            <button class="btn-media btn-timer" id="startBtn" onclick="toggleTimer()">⏱ INICIAR</button>
+            <button class="btn-media" style="background:#444; color:white;" onclick="resetTimer()">RST</button>
         </div>
-        
         <iframe id="mediaFrame" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    </div>
+
+    <div class="timer-section">
+        <div id="timer-display">00:60</div>
+        <div class="progress-container">
+            <div id="progress-bar"></div>
+        </div>
     </div>
 
     <div class="bottom-section" id="scoreboard"></div>
 
     <script>
-        // --- 1. LÓGICA DE REPRODUCTOR ROBUSTA ---
+        // --- REPRODUCTOR ---
         const frame = document.getElementById('mediaFrame');
-
-        // Función para limpiar links de YouTube y sacar el ID o la lista
         function loadUserVideo() {
-            const url = document.getElementById('ytUrl').value;
-            let embedUrl = "";
+            const urlInput = document.getElementById('ytUrl').value.trim();
+            let videoId = "";
+            if (urlInput.includes('youtu.be/')) videoId = urlInput.split('youtu.be/')[1].split('?')[0];
+            else if (urlInput.includes('v=')) videoId = urlInput.split('v=')[1].split('&')[0];
+            if (videoId) frame.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0`;
+        }
 
-            if (url.includes('list=')) {
-                // Es una playlist
-                const listId = url.split('list=')[1].split('&')[0];
-                embedUrl = `https://www.youtube.com/embed/videoseries?list=${listId}&autoplay=1`;
-            } else if (url.includes('v=')) {
-                // Es un video normal
-                const videoId = url.split('v=')[1].split('&')[0];
-                embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
-            } else if (url.includes('youtu.be/')) {
-                // Es un link corto
-                const videoId = url.split('youtu.be/')[1].split('?')[0];
-                embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+        // --- LÓGICA DEL CRONÓMETRO ---
+        let timerInterval;
+        let timeLeft;
+        let totalTime;
+        let isRunning = false;
+
+        function toggleTimer() {
+            if (isRunning) {
+                clearInterval(timerInterval);
+                document.getElementById('startBtn').innerText = "⏱ REANUDAR";
+                isRunning = false;
             } else {
-                alert("Por favor pega un link válido de YouTube.");
-                return;
+                if (!timeLeft || timeLeft <= 0) {
+                    totalTime = parseInt(document.getElementById('timeInput').value);
+                    timeLeft = totalTime;
+                }
+                isRunning = true;
+                document.getElementById('startBtn').innerText = "⏸ PAUSAR";
+                
+                timerInterval = setInterval(() => {
+                    timeLeft--;
+                    updateTimerDisplay();
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        isRunning = false;
+                        document.getElementById('startBtn').innerText = "⏱ INICIAR";
+                        document.getElementById('progress-bar').style.backgroundColor = "red";
+                        // Sonido opcional (beep)
+                        const audio = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+                        audio.play();
+                    }
+                }, 1000);
             }
-            frame.src = embedUrl;
         }
 
-        // Cargar Playlists predefinidas (Más fluido para batallas)
-        function loadPlaylist(type) {
-            let listId = "";
-            switch(type) {
-                case 'boombap':
-                    // Playlist de Instrumentales Boom Bap clásicos
-                    listId = "PL0yE1aP8oXhyGq6V71TzKk_57yOspgCys"; 
-                    break;
-                case 'trap':
-                    // Playlist de Trap/Hard Beats
-                    listId = "PL3oW2tjiIxvQ1BZkL7M-_j8FMtA6tCZt_"; 
-                    break;
-                case 'redbull':
-                    // Playlist Oficial de Batalla de los Gallos
-                    listId = "PLJ02s2_X1b45F9z4yC_lBIFQ1D-6uIDjG";
-                    break;
-            }
-            // Usamos embed/videoseries que es más estable que "search"
-            frame.src = `https://www.youtube.com/embed/videoseries?list=${listId}&autoplay=1`;
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            totalTime = parseInt(document.getElementById('timeInput').value);
+            timeLeft = totalTime;
+            document.getElementById('startBtn').innerText = "⏱ INICIAR";
+            updateTimerDisplay();
         }
 
-        // Cargar Spotify (Embed correcto)
-        function loadSpotify() {
-            // Embed de la playlist "Beats de Rap" oficial de Spotify o similar
-            frame.src = "https://open.spotify.com/embed/playlist/37i9dQZF1DWX3387IZmjQd?utm_source=generator&theme=0";
+        function updateTimerDisplay() {
+            const mins = Math.floor(timeLeft / 60);
+            const secs = timeLeft % 60;
+            document.getElementById('timer-display').innerText = 
+                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            
+            const percentage = (timeLeft / totalTime) * 100;
+            const bar = document.getElementById('progress-bar');
+            bar.style.width = `${percentage}%`;
+
+            // Cambio de color según el tiempo
+            if (percentage > 50) bar.style.backgroundColor = "#4CAF50";
+            else if (percentage > 20) bar.style.backgroundColor = "#f7b500";
+            else bar.style.backgroundColor = "#ff4444";
         }
 
-        // Cargar una playlist por defecto al abrir para que no se vea negro
-        window.onload = function() {
-            loadPlaylist('boombap');
-        };
-
-        // --- 2. GENERADOR DE JUGADORES (Igual que antes, funciona bien) ---
+        // --- SCOREBOARD ---
         const scoreboard = document.getElementById('scoreboard');
-        const numberOfPlayers = 5; 
-
-        for (let i = 1; i <= numberOfPlayers; i++) {
+        for (let i = 1; i <= 5; i++) {
             const col = document.createElement('div');
             col.className = 'player-column';
             col.innerHTML = `
                 <div class="editable-box" contenteditable="true">MC ${i}</div>
                 <div class="lives-container">
-                    <span class="heart" onclick="toggleStatus(this)">❤️</span>
-                    <span class="heart" onclick="toggleStatus(this)">❤️</span>
-                    <span class="heart" onclick="toggleStatus(this)">❤️</span>
-                    <span class="heart" onclick="toggleStatus(this)">❤️</span>
-                    <span class="heart" onclick="toggleStatus(this)">❤️</span>
+                    ${'<span class="heart" onclick="this.classList.toggle(\'lost\')">❤️</span>'.repeat(5)}
                 </div>
-                <div class="editable-box" contenteditable="true" style="margin-top:auto; font-size:1rem;">Estilo ${i}</div>
+                <div class="editable-box" contenteditable="true" style="margin-top:auto; font-size:0.9rem;">ESTILO</div>
                 <div class="genres-container">
-                    <div class="dot" onclick="toggleDot(this)"></div>
-                    <div class="dot" onclick="toggleDot(this)"></div>
-                    <div class="dot" onclick="toggleDot(this)"></div>
-                    <div class="dot" onclick="toggleDot(this)"></div>
-                    <div class="dot" onclick="toggleDot(this)"></div>
-                </div>
-            `;
+                    ${'<div class="dot" onclick="this.classList.toggle(\'used\')"></div>'.repeat(5)}
+                </div>`;
             scoreboard.appendChild(col);
         }
-
-        function toggleStatus(element) { element.classList.toggle('lost'); }
-        function toggleDot(element) { element.classList.toggle('used'); }
-
+        
+        // Inicializar display
+        resetTimer();
     </script>
 </body>
 </html>
