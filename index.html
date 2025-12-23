@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Red Bull 5 Vidas - Sistema de Arbitraje</title>
+    <title>Red Bull 5 Vidas - Generos</title>
     <style>
         body { margin: 0; padding: 0; background: linear-gradient(135deg, #0f1642 0%, #05081c 100%); color: white; font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         .top-section { height: 40%; display: flex; flex-direction: column; background-color: #000; }
@@ -13,9 +13,8 @@
         .btn-media { padding: 8px 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.7rem; text-transform: uppercase; transition: 0.2s; }
         .btn-yt-load { background-color: #cc0000; color: white; }
         .btn-genre { background-color: #2e3b8b; color: white; border: 1px solid #4a59bd; }
-        .btn-genre:disabled { background-color: #222; border-color: #444; color: #666; cursor: not-allowed; }
+        .btn-genre:disabled { background-color: #222; border-color: #444; color: #666; cursor: not-allowed; opacity: 0.5; }
         .btn-timer { background-color: #f7b500; color: #000; }
-        .btn-rst { background-color: #555; color: white; }
         .btn-reset-all { background-color: #ff4444; color: white; }
         .btn-list { background-color: #28a745; color: white; border: 1px solid #1e7e34; }
         iframe { width: 100%; height: 100%; border: none; flex-grow: 1; }
@@ -30,7 +29,6 @@
         .bottom-section { height: 60%; display: flex; overflow-x: auto; padding: 15px; background: radial-gradient(circle at center, #1e2a78 0%, #0f1642 70%); gap: 15px; box-sizing: border-box; }
         .player-column { flex: 0 0 250px; display: flex; flex-direction: column; align-items: center; background: rgba(255, 255, 255, 0.05); border: 2px solid transparent; border-radius: 10px; padding: 12px; transition: 0.3s; }
         
-        /* Estados de los MCs */
         .player-column.defensor { border-color: #4CAF50; background: rgba(76, 175, 80, 0.1); box-shadow: 0 0 15px rgba(76, 175, 80, 0.3); }
         .player-column.retador { border-color: #f7b500; background: rgba(247, 181, 0, 0.1); box-shadow: 0 0 15px rgba(247, 181, 0, 0.3); }
         .player-column.out { opacity: 0.3; filter: grayscale(1); }
@@ -41,13 +39,14 @@
 
         .editable-box { background: transparent; border: 2px solid white; padding: 5px; text-align: center; width: 90%; font-weight: bold; color: #fff; margin-bottom: 10px; outline: none; }
         .lives-container { display: flex; gap: 5px; margin-bottom: 15px; }
-        .heart { cursor: pointer; font-size: 1.5rem; color: #ff0000; user-select: none; transition: 0.2s; }
+        .heart { cursor: pointer; font-size: 1.5rem; color: #ff0000; user-select: none; }
         .heart.lost { filter: grayscale(100%); opacity: 0.2; }
+
         .genres-list { display: flex; flex-direction: column; width: 100%; gap: 6px; }
         .genre-item { display: flex; justify-content: space-between; align-items: center; padding: 5px 10px; background: rgba(255, 255, 255, 0.1); border-radius: 5px; }
         .genre-name-input { background: transparent; border: none; color: white; font-weight: bold; text-transform: uppercase; font-size: 0.7rem; width: 65%; outline: none; }
         .dot { width: 18px; height: 18px; background-color: #8ce68c; border-radius: 50%; border: 2px solid #fff; flex-shrink: 0; }
-        .dot.used { background-color: #444; border-color: #777; }
+        .dot.used { background-color: #444 !important; border-color: #777 !important; }
     </style>
 </head>
 <body>
@@ -58,18 +57,18 @@
                 <input type="text" id="ytUrl" placeholder="Link YouTube...">
                 <button class="btn-media btn-yt-load" onclick="loadUserVideo()">▶</button>
             </div>
-            <button class="btn-media btn-genre" onclick="playMatch(0)">BoomBap</button>
-            <button class="btn-media btn-genre" onclick="playMatch(1)">Trap</button>
-            <button class="btn-media btn-genre" onclick="playMatch(2)">Reggae</button>
-            <button class="btn-media btn-genre" onclick="playMatch(3)">Rock</button>
-            <button class="btn-media btn-genre" onclick="playMatch(4)">D.Tempo</button>
+            <button class="btn-media btn-genre" id="btn-g-0" onclick="playMatch(0)">BoomBap</button>
+            <button class="btn-media btn-genre" id="btn-g-1" onclick="playMatch(1)">Trap</button>
+            <button class="btn-media btn-genre" id="btn-g-2" onclick="playMatch(2)">Reggae</button>
+            <button class="btn-media btn-genre" id="btn-g-3" onclick="playMatch(3)">Rock</button>
+            <button class="btn-media btn-genre" id="btn-g-4" onclick="playMatch(4)">D.Tempo</button>
             <span style="color:#555;">|</span>
             <input type="number" id="timeInput" value="60" step="30" min="30" style="width: 50px;">
             <button class="btn-media btn-timer" id="startBtn" onclick="toggleTimer()">⏱</button>
             <button class="btn-media btn-reset-all" onclick="resetBattle()">REINICIAR</button>
             <button class="btn-media btn-list" onclick="window.open('https://docs.google.com/spreadsheets/d/1a5DDloTeoj5TnJ6c3zgcRrfCpfnVBxgc4QtME7ko0Ws/', '_blank')">Beat's List</button>
         </div>
-        <div class="status-bar" id="match-status">Esperando inicio...</div>
+        <div class="status-bar" id="match-status">Cargando beats...</div>
         <iframe id="mediaFrame" src="" allow="autoplay; encrypted-media"></iframe>
     </div>
 
@@ -86,9 +85,16 @@
         const defaultGeneros = ["Boom Bap", "Trap", "Reggae", "Rock", "Doble Tempo"];
         
         let beatLibrary = [[], [], [], [], []];
-        let mcData = Array(5).fill().map((_, i) => ({ id: i, lives: 5, out: false }));
-        let defensorIdx = 0; // MC 1
-        let retadorIdx = 1;  // MC 2
+        // Aquí guardamos el estado real de cada MC: vidas y géneros usados
+        let mcData = Array(5).fill().map((_, i) => ({ 
+            id: i, 
+            lives: 5, 
+            out: false,
+            usedGenres: [false, false, false, false, false] // Guarda qué puntos están grises
+        }));
+
+        let defensorIdx = 0; 
+        let retadorIdx = 1;  
         let beatSelected = false;
 
         async function fetchBeats() {
@@ -103,6 +109,7 @@
                     });
                 });
                 updateStatus();
+                toggleGenreButtons(); 
             } catch (e) { console.error(e); }
         }
 
@@ -118,7 +125,6 @@
             mcData.forEach((mc, i) => {
                 let col = document.createElement('div');
                 col.className = `player-column ${mc.out ? 'out' : ''} ${i===defensorIdx?'defensor':''} ${i===retadorIdx?'retador':''}`;
-                col.id = `mc-col-${i}`;
                 col.innerHTML = `
                     <div class="role-label">${i===defensorIdx?'DEFENSOR':'RETADOR'}</div>
                     <div class="editable-box" contenteditable="true">MC ${i+1}</div>
@@ -129,7 +135,7 @@
                         ${defaultGeneros.map((g, gi) => `
                             <div class="genre-item">
                                 <span class="genre-name-input">${g}</span>
-                                <div class="dot dot-mc-${i}-${gi}"></div>
+                                <div class="dot ${mc.usedGenres[gi] ? 'used' : ''}"></div>
                             </div>
                         `).join('')}
                     </div>
@@ -140,23 +146,35 @@
 
         function playMatch(genreIdx) {
             if (beatSelected) return;
-            const list = beatLibrary[genreIdx];
-            if (!list.length) return alert("No hay beats");
-
-            // Marcar el género usado SOLO al retador
-            document.querySelector(`.dot-mc-${retadorIdx}-${genreIdx}`).classList.add('used');
             
-            // Cargar Video
+            // Verificar si el retador ya usó ese género
+            if (mcData[retadorIdx].usedGenres[genreIdx]) {
+                alert("Este MC ya utilizó este género. Debe elegir otro.");
+                return;
+            }
+
+            const list = beatLibrary[genreIdx];
+            if (!list.length) return alert("No hay beats en esta categoría");
+
+            // 1. Guardar el uso del género en mcData para que no se borre al refrescar
+            mcData[retadorIdx].usedGenres[genreIdx] = true;
+            
+            // 2. Cargar Video
             const id = list[Math.floor(Math.random() * list.length)];
             document.getElementById('mediaFrame').src = `https://www.youtube.com/embed/${id}?autoplay=1`;
             
             beatSelected = true;
-            toggleButtons(false);
+            renderBoard(); // Actualiza visualmente el punto gris
+            toggleGenreButtons(); // Bloquea botones
             updateStatus();
         }
 
         function takeLife(mcIdx, heartIdx) {
-            if (!beatSelected) return; // Obliga a que haya un beat sonando
+            // Solo se puede restar vida si hay una batalla activa (beat sonando)
+            if (!beatSelected) {
+                alert("Primero debes elegir un Beat para iniciar la batalla.");
+                return;
+            }
             
             if (confirm(`¿MC ${mcIdx + 1} pierde una vida?`)) {
                 mcData[mcIdx].lives--;
@@ -164,51 +182,68 @@
 
                 // Lógica de Rotación
                 if (mcIdx === defensorIdx) {
-                    // El defensor perdió, el retador ahora es el defensor
+                    // El defensor perdió, el retador sube a defensor si el retador no perdió también (caso raro)
+                    // En 5 vidas, el que gana se queda.
                     defensorIdx = retadorIdx;
                     retadorIdx = findNextMC(retadorIdx);
                 } else {
-                    // El retador perdió, el defensor se queda, buscamos nuevo retador
+                    // El retador perdió, el defensor se queda, entra el siguiente
                     retadorIdx = findNextMC(retadorIdx);
                 }
 
                 beatSelected = false;
-                toggleButtons(true);
                 resetTimer();
                 renderBoard();
+                toggleGenreButtons(); // Desbloquea botones para el siguiente turno
                 updateStatus();
             }
         }
 
         function findNextMC(currentIdx) {
+            // Busca al siguiente que no esté eliminado y no sea el defensor actual
             for (let i = 1; i <= 5; i++) {
                 let next = (currentIdx + i) % 5;
                 if (!mcData[next].out && next !== defensorIdx) return next;
             }
-            return -1; // Fin del juego
+            return -1; 
         }
 
-        function toggleButtons(enabled) {
-            document.querySelectorAll('.btn-genre').forEach(b => b.disabled = !enabled);
+        function toggleGenreButtons() {
+            const buttons = document.querySelectorAll('.btn-genre');
+            buttons.forEach((btn, i) => {
+                // Si la batalla está en curso, bloquear todos
+                if (beatSelected) {
+                    btn.disabled = true;
+                } else {
+                    // Si no hay batalla, habilitar solo los que el retador NO haya usado
+                    if (retadorIdx !== -1 && mcData[retadorIdx].usedGenres[i]) {
+                        btn.disabled = true;
+                    } else {
+                        btn.disabled = false;
+                    }
+                }
+            });
         }
 
         function updateStatus() {
             const status = document.getElementById('match-status');
             if (retadorIdx === -1) {
-                status.innerText = "¡FIN DE LA COMPETENCIA!";
+                status.innerText = "¡FIN DE LA COMPETENCIA! TENEMOS UN GANADOR";
+                status.style.background = "#fff";
                 return;
             }
             if (!beatSelected) {
-                status.innerText = `Turno de MC ${retadorIdx + 1} para elegir Beat`;
+                status.innerText = `Turno de MC ${retadorIdx + 1} (RETADOR) para elegir Beat`;
                 status.style.background = "#f7b500";
+                status.style.color = "black";
             } else {
-                status.innerText = `BATALLA EN CURSO: MC ${defensorIdx + 1} VS MC ${retadorIdx + 1}`;
+                status.innerText = `BATALLA: MC ${defensorIdx + 1} vs MC ${retadorIdx + 1}`;
                 status.style.background = "#ff4444";
                 status.style.color = "white";
             }
         }
 
-        // --- FUNCIONES DE RELOJ ---
+        // --- RELOJ ---
         let time, timer, running = false;
         function toggleTimer() {
             if(running) { clearInterval(timer); running = false; document.getElementById('startBtn').innerText = "⏱"; }
@@ -217,25 +252,7 @@
                 running = true; document.getElementById('startBtn').innerText = "⏸";
                 timer = setInterval(() => {
                     time--; updateTimer();
-                    if(time <= 0) { clearInterval(timer); running = false; document.getElementById('startBtn').innerText = "⏱"; }
-                }, 1000);
-            }
-        }
-        function updateTimer() {
-            const m = Math.floor(time/60), s = time%60;
-            document.getElementById('timer-display').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            document.getElementById('progress-bar').style.width = (time / parseInt(document.getElementById('timeInput').value) * 100) + "%";
-        }
-        function resetTimer() { clearInterval(timer); running = false; updateTimer(); document.getElementById('startBtn').innerText = "⏱"; }
-
-        function resetBattle() {
-            if(confirm("¿Reiniciar todo?")) location.reload();
-        }
-
-        window.onload = () => {
-            renderBoard();
-            fetchBeats();
-        };
-    </script>
-</body>
-</html>
+                    if(time <= 0) { 
+                        clearInterval(timer); running = false; 
+                        document.getElementById('startBtn').innerText = "⏱";
+                        new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg').play().catch(()=>{});
