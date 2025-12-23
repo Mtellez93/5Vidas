@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>5 Vidas - No Oficial</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         body { margin: 0; padding: 0; background: linear-gradient(135deg, #0f1642 0%, #05081c 100%); color: white; font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
@@ -26,7 +27,7 @@
         /* CONTENEDOR LOGO Y VIDEO */
         .brand-frame { position: relative; flex-grow: 1; background: #000; overflow: hidden; }
         iframe { width: 100%; height: 100%; border: none; position: relative; z-index: 2; background: transparent; }
-        .main-logo { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 150px; opacity: 0.6; z-index: 1; pointer-events: none; }
+        .main-logo { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 220px; opacity: 0.8; z-index: 1; pointer-events: none; }
 
         /* CRONÓMETRO */
         .timer-section { background: #000; padding: 5px 15px; display: flex; align-items: center; gap: 15px; border-bottom: 2px solid white; flex-shrink: 0; }
@@ -34,20 +35,12 @@
         .progress-container { flex-grow: 1; height: 10px; background: #333; border-radius: 10px; overflow: hidden; }
         #progress-bar { width: 100%; height: 100%; background: #4CAF50; transition: width 1s linear; }
 
-        /* SECCIÓN INFERIOR (TABLERO) */
+        /* SECCIÓN INFERIOR */
         .bottom-section { height: 55%; display: flex; overflow-x: auto; padding: 20px; background: radial-gradient(circle at center, #1e2a78 0%, #0f1642 70%); gap: 15px; box-sizing: border-box; align-items: flex-start; }
         .player-column { flex: 0 0 230px; display: flex; flex-direction: column; align-items: center; background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; transition: 0.4s; min-height: 300px; }
-        
-        /* Estilos de Batalla */
         .player-column.defensor { border-color: #4CAF50; background: rgba(76, 175, 80, 0.15); box-shadow: 0 0 20px rgba(76, 175, 80, 0.2); }
         .player-column.retador { border-color: #f7b500; background: rgba(247, 181, 0, 0.15); box-shadow: 0 0 20px rgba(247, 181, 0, 0.2); }
         .player-column.out { opacity: 0.2; filter: grayscale(1); transform: scale(0.95); }
-
-        /* Estilo de los corazones habilitados vs deshabilitados */
-        .heart { font-size: 1.4rem; color: #ff0000; user-select: none; transition: transform 0.2s; }
-        .defensor .heart, .retador .heart { cursor: pointer; }
-        .defensor .heart:hover, .retador .heart:hover { transform: scale(1.2); }
-        .player-column:not(.defensor):not(.retador) .heart { cursor: default; }
 
         .role-label { font-size: 0.65rem; font-weight: 900; padding: 3px 10px; border-radius: 20px; margin-bottom: 8px; text-transform: uppercase; visibility: hidden; }
         .defensor .role-label { visibility: visible; background: #4CAF50; color: white; }
@@ -57,15 +50,39 @@
         .locked .editable-box { border: none; background: transparent; pointer-events: none; font-size: 1.2rem; }
         
         .lives-container { display: flex; gap: 4px; margin-bottom: 15px; }
+        .heart { cursor: pointer; font-size: 1.4rem; color: #ff0000; user-select: none; transition: 0.2s; }
         .heart.lost { filter: grayscale(100%); opacity: 0.15; }
 
         .genres-list { display: flex; flex-direction: column; width: 100%; gap: 8px; }
         .genre-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: rgba(255, 255, 255, 0.08); border-radius: 6px; }
         .dot { width: 16px; height: 16px; background-color: #8ce68c; border-radius: 50%; border: 2px solid #fff; transition: 0.3s; }
         .dot.used { background-color: #333 !important; border-color: #555 !important; }
+
+        /* MODALES */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: #1a1a2e; border: 2px solid #ffd700; padding: 30px; border-radius: 15px; text-align: center; max-width: 400px; box-shadow: 0 0 30px rgba(255,215,0,0.3); }
+        .modal-btn { border: none; padding: 10px 25px; border-radius: 5px; cursor: pointer; font-weight: bold; margin: 5px; text-transform: uppercase; }
+        
+        #winner-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, #1e2a78 0%, #000 100%); z-index: 2000; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .winner-name { font-size: 5rem; color: #ffd700; text-shadow: 0 0 30px #ffd700; margin: 20px 0; font-weight: 900; text-transform: uppercase; }
     </style>
 </head>
 <body>
+
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 style="color:#ffd700; margin-top:0;">🔥 VEREDICTO 🔥</h2>
+            <p id="confirmMsg" style="font-size: 1.1rem; margin-bottom: 20px;"></p>
+            <button class="modal-btn" style="background:#4CAF50; color:white;" onclick="confirmAction(true)">SÍ, PERDIÓ</button>
+            <button class="modal-btn" style="background:#ff4444; color:white;" onclick="confirmAction(false)">CANCELAR</button>
+        </div>
+    </div>
+
+    <div id="winner-screen">
+        <h3 style="color:white; letter-spacing: 5px;">TENEMOS UN CAMPEÓN</h3>
+        <div class="winner-name" id="winner-display">NOMBRE</div>
+        <button class="btn-save" style="font-size: 1.2rem; padding: 15px 30px;" onclick="location.reload()">NUEVA BATALLA</button>
+    </div>
 
     <div class="top-section">
         <div class="config-panel" id="config-ui">
@@ -100,7 +117,7 @@
         <div class="status-bar" id="match-status">Configura y guarda para empezar</div>
 
         <div class="brand-frame">
-            <img src="https://raw.githubusercontent.com/Mtellez93/5Vidas/refs/heads/main/logo.png" class="main-logo" alt="Logo Evento">
+            <img src="https://raw.githubusercontent.com/Mtellez93/5Vidas/refs/heads/main/logo.png" class="main-logo" alt="Logo 5 Vidas">
             <iframe id="mediaFrame" src="" allow="autoplay; encrypted-media"></iframe>
         </div>
     </div>
@@ -120,12 +137,11 @@
         let mcData = [];
         let beatLibrary = [[],[],[],[],[]];
         let defensorIdx = 0, retadorIdx = 1, beatSelected = false;
+        let pendingLossIdx = null;
 
         function initMCs() {
             mcData = Array(config.totalMCs).fill().map((_, i) => ({
-                name: `MC ${i+1}`,
-                lives: config.startLives,
-                out: false,
+                name: `MC ${i+1}`, lives: config.startLives, out: false,
                 usedGenres: [false, false, false, false, false]
             }));
         }
@@ -136,8 +152,7 @@
             if (newV >= 2 && newV <= 5) {
                 config[key] = newV;
                 document.getElementById(`label-${key}`).innerText = newV;
-                initMCs();
-                renderBoard();
+                initMCs(); renderBoard();
             }
         }
 
@@ -152,15 +167,12 @@
                 btn.innerHTML = "💾 GUARDAR Y EMPEZAR";
                 btn.classList.remove('locked');
             }
-            renderBoard();
-            toggleGenreButtons();
-            updateStatus();
+            renderBoard(); toggleGenreButtons(); updateStatus();
         }
 
         function renderBoard() {
             const sb = document.getElementById('scoreboard');
             if(!sb) return;
-            sb.className = `bottom-section ${config.locked ? 'locked' : ''}`;
             sb.innerHTML = ""; 
             mcData.forEach((mc, i) => {
                 let col = document.createElement('div');
@@ -169,12 +181,12 @@
                     <div class="role-label">${i===defensorIdx?'Defensor':'Retador'}</div>
                     <div class="editable-box" contenteditable="${!config.locked}">${mc.name}</div>
                     <div class="lives-container">
-                        ${Array(config.startLives).fill().map((_, l) => `<span class="heart ${l >= mc.lives ? 'lost' : ''}" onclick="takeLife(${i}, ${l})">❤️</span>`).join('')}
+                        ${Array(config.startLives).fill().map((_, l) => `<span class="heart ${l >= mc.lives ? 'lost' : ''}" onclick="takeLife(${i})">❤️</span>`).join('')}
                     </div>
                     <div class="genres-list">
                         ${["Boom Bap", "Trap", "Reggae", "Rock", "D. Tempo"].map((g, gi) => `
                             <div class="genre-item">
-                                <span style="font-size:0.6rem; font-weight:900; text-transform:uppercase;">${g}</span>
+                                <span style="font-size:0.55rem; font-weight:900;">${g}</span>
                                 <div class="dot ${mc.usedGenres[gi] ? 'used' : ''}"></div>
                             </div>
                         `).join('')}
@@ -182,6 +194,60 @@
                 `;
                 sb.appendChild(col);
             });
+        }
+
+        function takeLife(idx) {
+            if (!beatSelected || !config.locked) return;
+            if (idx !== defensorIdx && idx !== retadorIdx) return;
+            pendingLossIdx = idx;
+            document.getElementById('confirmMsg').innerText = `¿${mcData[idx].name} pierde una vida?`;
+            document.getElementById('confirmModal').style.display = 'flex';
+        }
+
+        function confirmAction(confirmed) {
+            document.getElementById('confirmModal').style.display = 'none';
+            if (confirmed && pendingLossIdx !== null) {
+                let idx = pendingLossIdx;
+                mcData[idx].lives--;
+                if (mcData[idx].lives <= 0) mcData[idx].out = true;
+                if (idx === defensorIdx) { defensorIdx = retadorIdx; retadorIdx = findNextMC(retadorIdx); }
+                else { retadorIdx = findNextMC(retadorIdx); }
+                beatSelected = false;
+                resetTimer(); renderBoard(); toggleGenreButtons(); updateStatus();
+                checkWinner();
+            }
+            pendingLossIdx = null;
+        }
+
+        function checkWinner() {
+            if (retadorIdx === -1) {
+                const winnerName = mcData[defensorIdx].name;
+                document.getElementById('winner-display').innerText = winnerName;
+                document.getElementById('winner-screen').style.display = 'flex';
+                
+                // Efecto de Confeti
+                var duration = 5 * 1000;
+                var animationEnd = Date.now() + duration;
+                var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 3000 };
+
+                function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+
+                var interval = setInterval(function() {
+                    var timeLeft = animationEnd - Date.now();
+                    if (timeLeft <= 0) return clearInterval(interval);
+                    var particleCount = 50 * (timeLeft / duration);
+                    confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                    confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+                }, 250);
+            }
+        }
+
+        function findNextMC(curr) {
+            for (let i = 1; i <= mcData.length; i++) {
+                let next = (curr + i) % mcData.length;
+                if (!mcData[next].out && next !== defensorIdx) return next;
+            }
+            return -1;
         }
 
         async function fetchBeats() {
@@ -197,7 +263,7 @@
                         if (id && i < 5) beatLibrary[i].push(id);
                     });
                 });
-            } catch (e) { console.error("Error beats:", e); }
+            } catch (e) { console.error(e); }
         }
 
         function playMatch(gi) {
@@ -207,46 +273,7 @@
             mcData[retadorIdx].usedGenres[gi] = true;
             document.getElementById('mediaFrame').src = `https://www.youtube.com/embed/${list[Math.floor(Math.random()*list.length)]}?autoplay=1`;
             beatSelected = true;
-            renderBoard();
-            toggleGenreButtons();
-            updateStatus();
-        }
-
-        function takeLife(idx, lIdx) {
-            // VALIDACIÓN: Solo se puede restar vida si el beat está sonando Y el MC es el Defensor o el Retador
-            if (!beatSelected || !config.locked) return;
-            
-            if (idx !== defensorIdx && idx !== retadorIdx) {
-                // Si el MC cliqueado no es uno de los dos peleando, ignoramos el clic silenciosamente
-                return;
-            }
-
-            if (confirm(`¿${mcData[idx].name} pierde una vida?`)) {
-                mcData[idx].lives--;
-                if (mcData[idx].lives <= 0) mcData[idx].out = true;
-                
-                // Rotación automática de puestos
-                if (idx === defensorIdx) { 
-                    defensorIdx = retadorIdx; 
-                    retadorIdx = findNextMC(retadorIdx); 
-                } else { 
-                    retadorIdx = findNextMC(retadorIdx); 
-                }
-                
-                beatSelected = false;
-                resetTimer();
-                renderBoard();
-                toggleGenreButtons();
-                updateStatus();
-            }
-        }
-
-        function findNextMC(curr) {
-            for (let i = 1; i <= mcData.length; i++) {
-                let next = (curr + i) % mcData.length;
-                if (!mcData[next].out && next !== defensorIdx) return next;
-            }
-            return -1;
+            renderBoard(); toggleGenreButtons(); updateStatus();
         }
 
         function toggleGenreButtons() {
