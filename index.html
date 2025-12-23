@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Red Bull 5 Vidas - Pro Logo</title>
+    <title>5 Vidas - No Oficial</title>
     <style>
         body { margin: 0; padding: 0; background: linear-gradient(135deg, #0f1642 0%, #05081c 100%); color: white; font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
@@ -37,9 +37,17 @@
         /* SECCIÓN INFERIOR (TABLERO) */
         .bottom-section { height: 55%; display: flex; overflow-x: auto; padding: 20px; background: radial-gradient(circle at center, #1e2a78 0%, #0f1642 70%); gap: 15px; box-sizing: border-box; align-items: flex-start; }
         .player-column { flex: 0 0 230px; display: flex; flex-direction: column; align-items: center; background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; transition: 0.4s; min-height: 300px; }
+        
+        /* Estilos de Batalla */
         .player-column.defensor { border-color: #4CAF50; background: rgba(76, 175, 80, 0.15); box-shadow: 0 0 20px rgba(76, 175, 80, 0.2); }
         .player-column.retador { border-color: #f7b500; background: rgba(247, 181, 0, 0.15); box-shadow: 0 0 20px rgba(247, 181, 0, 0.2); }
         .player-column.out { opacity: 0.2; filter: grayscale(1); transform: scale(0.95); }
+
+        /* Estilo de los corazones habilitados vs deshabilitados */
+        .heart { font-size: 1.4rem; color: #ff0000; user-select: none; transition: transform 0.2s; }
+        .defensor .heart, .retador .heart { cursor: pointer; }
+        .defensor .heart:hover, .retador .heart:hover { transform: scale(1.2); }
+        .player-column:not(.defensor):not(.retador) .heart { cursor: default; }
 
         .role-label { font-size: 0.65rem; font-weight: 900; padding: 3px 10px; border-radius: 20px; margin-bottom: 8px; text-transform: uppercase; visibility: hidden; }
         .defensor .role-label { visibility: visible; background: #4CAF50; color: white; }
@@ -49,7 +57,6 @@
         .locked .editable-box { border: none; background: transparent; pointer-events: none; font-size: 1.2rem; }
         
         .lives-container { display: flex; gap: 4px; margin-bottom: 15px; }
-        .heart { cursor: pointer; font-size: 1.4rem; color: #ff0000; user-select: none; }
         .heart.lost { filter: grayscale(100%); opacity: 0.15; }
 
         .genres-list { display: flex; flex-direction: column; width: 100%; gap: 8px; }
@@ -93,7 +100,7 @@
         <div class="status-bar" id="match-status">Configura y guarda para empezar</div>
 
         <div class="brand-frame">
-            <img src="https://www.pngall.com/wp-content/uploads/13/Red-Bull-Logo-PNG-File.png" class="main-logo" alt="Logo Evento">
+            <img src="https://raw.githubusercontent.com/Mtellez93/5Vidas/refs/heads/main/logo.png" class="main-logo" alt="Logo Evento">
             <iframe id="mediaFrame" src="" allow="autoplay; encrypted-media"></iframe>
         </div>
     </div>
@@ -206,12 +213,26 @@
         }
 
         function takeLife(idx, lIdx) {
+            // VALIDACIÓN: Solo se puede restar vida si el beat está sonando Y el MC es el Defensor o el Retador
             if (!beatSelected || !config.locked) return;
-            if (confirm(`¿${mcData[idx].name} pierde vida?`)) {
+            
+            if (idx !== defensorIdx && idx !== retadorIdx) {
+                // Si el MC cliqueado no es uno de los dos peleando, ignoramos el clic silenciosamente
+                return;
+            }
+
+            if (confirm(`¿${mcData[idx].name} pierde una vida?`)) {
                 mcData[idx].lives--;
                 if (mcData[idx].lives <= 0) mcData[idx].out = true;
-                if (idx === defensorIdx) { defensorIdx = retadorIdx; retadorIdx = findNextMC(retadorIdx); }
-                else { retadorIdx = findNextMC(retadorIdx); }
+                
+                // Rotación automática de puestos
+                if (idx === defensorIdx) { 
+                    defensorIdx = retadorIdx; 
+                    retadorIdx = findNextMC(retadorIdx); 
+                } else { 
+                    retadorIdx = findNextMC(retadorIdx); 
+                }
+                
                 beatSelected = false;
                 resetTimer();
                 renderBoard();
