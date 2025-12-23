@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Red Bull 5 Vidas - Pro Manager</title>
+    <title>5 Vidas - No Oficial</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         body { margin: 0; padding: 0; background: linear-gradient(135deg, #0f1642 0%, #05081c 100%); color: white; font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
@@ -18,9 +18,9 @@
         .btn-save.locked { background: #4CAF50; color: white; }
 
         .media-controls { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; padding: 10px; background: #1a1a2e; border-bottom: 2px solid #333; z-index: 10; }
-        .btn-media { padding: 8px 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.7rem; text-transform: uppercase; }
+        .btn-media { padding: 8px 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.7rem; text-transform: uppercase; transition: opacity 0.3s; }
+        .btn-media:disabled { opacity: 0.3; cursor: not-allowed; }
         .btn-genre { background-color: #2e3b8b; color: white; border: 1px solid #4a59bd; }
-        .btn-genre:disabled { background-color: #222; opacity: 0.5; cursor: not-allowed; }
         
         .status-bar { background: #ffd700; color: #000; text-align: center; font-weight: bold; padding: 5px; font-size: 0.85rem; text-transform: uppercase; z-index: 10; }
         
@@ -111,8 +111,8 @@
             <span style="color:#444;">|</span>
             <input type="number" id="timeInput" value="60" step="10" style="width: 50px; border-radius: 4px; border:none; padding: 4px; font-weight: bold;">
             <button class="btn-media" id="startBtn" style="background:#f7b500;" onclick="toggleTimer()">⏱</button>
-            <button class="btn-media" style="background:#6c757d; color:white;" onclick="resetTimer()">🔄</button>
-            <button class="btn-media" style="background:#28a745; color:white;" onclick="window.open('https://docs.google.com/spreadsheets/d/1a5DDloTeoj5TnJ6c3zgcRrfCpfnVBxgc4QtME7ko0Ws/', '_blank')">Beat List</button>
+            <button class="btn-media" id="resetBtn" style="background:#6c757d; color:white;" onclick="resetTimer()">🔄</button>
+            <button class="btn-media" style="background:#28a745; color:white;" onclick="window.open('https://docs.google.com/spreadsheets/d/1a5DDloTeoj5TnJ6c3zgcRrfCpfnVBxgc4QtME7ko0Ws/', '_blank')">LISTA</button>
         </div>
         
         <div class="status-bar" id="match-status">Configura y guarda para empezar</div>
@@ -132,7 +132,7 @@
 
     <script>
         const SHEET_ID = '1a5DDloTeoj5TnJ6c3zgcRrfCpfnVBxgc4QtME7ko0Ws';
-        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx:out:csv`;
+        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
         
         let config = { totalMCs: 5, startLives: 5, locked: false };
         let mcData = [];
@@ -167,157 +167,7 @@
             } else {
                 btn.innerHTML = "💾 GUARDAR Y EMPEZAR";
                 btn.classList.remove('locked');
+                if(running) resetTimer(); // Detener timer si se desbloquea
             }
-            renderBoard(); toggleGenreButtons(); updateStatus();
+            renderBoard(); toggleGenreButtons(); updateStatus(); toggleTimerButtons();
         }
-
-        function renderBoard() {
-            const sb = document.getElementById('scoreboard');
-            if(!sb) return;
-            sb.innerHTML = ""; 
-            mcData.forEach((mc, i) => {
-                let col = document.createElement('div');
-                col.className = `player-column ${mc.out ? 'out' : ''} ${config.locked && i===defensorIdx?'defensor':''} ${config.locked && i===retadorIdx?'retador':''}`;
-                col.innerHTML = `
-                    <div class="role-label">${i===defensorIdx?'Defensor':'Retador'}</div>
-                    <div class="editable-box" contenteditable="${!config.locked}">${mc.name}</div>
-                    <div class="lives-container">
-                        ${Array(config.startLives).fill().map((_, l) => `<span class="heart ${l >= mc.lives ? 'lost' : ''}" onclick="takeLife(${i})">❤️</span>`).join('')}
-                    </div>
-                    <div class="genres-list">
-                        ${["Boom Bap", "Trap", "Reggae", "Rock", "D. Tempo"].map((g, gi) => `
-                            <div class="genre-item">
-                                <span style="font-size:0.55rem; font-weight:900;">${g}</span>
-                                <div class="dot ${mc.usedGenres[gi] ? 'used' : ''}"></div>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-                sb.appendChild(col);
-            });
-        }
-
-        function takeLife(idx) {
-            if (!beatSelected || !config.locked) return;
-            if (idx !== defensorIdx && idx !== retadorIdx) return;
-            pendingLossIdx = idx;
-            document.getElementById('confirmMsg').innerText = `¿${mcData[idx].name} pierde una vida?`;
-            document.getElementById('confirmModal').style.display = 'flex';
-        }
-
-        function confirmAction(confirmed) {
-            document.getElementById('confirmModal').style.display = 'none';
-            if (confirmed && pendingLossIdx !== null) {
-                let idx = pendingLossIdx;
-                mcData[idx].lives--;
-                if (mcData[idx].lives <= 0) mcData[idx].out = true;
-                if (idx === defensorIdx) { defensorIdx = retadorIdx; retadorIdx = findNextMC(retadorIdx); }
-                else { retadorIdx = findNextMC(retadorIdx); }
-                
-                beatSelected = false;
-                resetTimer(); renderBoard(); toggleGenreButtons(); updateStatus();
-                checkWinner();
-            }
-            pendingLossIdx = null;
-        }
-
-        function checkWinner() {
-            if (retadorIdx === -1) {
-                const winnerName = mcData[defensorIdx].name;
-                document.getElementById('winner-display').innerText = winnerName;
-                document.getElementById('winner-screen').style.display = 'flex';
-                
-                var duration = 5 * 1000;
-                var animationEnd = Date.now() + duration;
-                var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 3000 };
-
-                function randomInRange(min, max) { return Math.random() * (max - min) + min; }
-
-                var interval = setInterval(function() {
-                    var timeLeft = animationEnd - Date.now();
-                    if (timeLeft <= 0) return clearInterval(interval);
-                    var particleCount = 50 * (timeLeft / duration);
-                    confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
-                    confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
-                }, 250);
-            }
-        }
-
-        function findNextMC(curr) {
-            for (let i = 1; i <= mcData.length; i++) {
-                let next = (curr + i) % mcData.length;
-                if (!mcData[next].out && next !== defensorIdx) return next;
-            }
-            return -1;
-        }
-
-        async function fetchBeats() {
-            try {
-                const response = await fetch(SHEET_URL);
-                const data = await response.text();
-                const rows = data.replace(/"/g, '').split(/\r?\n/).slice(1); 
-                rows.forEach(row => {
-                    row.split(',').forEach((url, i) => {
-                        const reg = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-                        const m = url.match(reg);
-                        const id = (m && m[2].length === 11) ? m[2] : (url.trim().length === 11 ? url.trim() : null);
-                        if (id && i < 5) beatLibrary[i].push(id);
-                    });
-                });
-            } catch (e) { console.error(e); }
-        }
-
-        function playMatch(gi) {
-            if (!config.locked || beatSelected || (retadorIdx !== -1 && mcData[retadorIdx].usedGenres[gi])) return;
-            const list = beatLibrary[gi];
-            if (!list.length) return alert("Sin beats");
-            mcData[retadorIdx].usedGenres[gi] = true;
-            document.getElementById('mediaFrame').src = `https://www.youtube.com/embed/${list[Math.floor(Math.random()*list.length)]}?autoplay=1`;
-            beatSelected = true;
-            renderBoard(); toggleGenreButtons(); updateStatus();
-        }
-
-        function toggleGenreButtons() {
-            document.querySelectorAll('.btn-genre').forEach((b, i) => {
-                b.disabled = !config.locked || beatSelected || (retadorIdx !== -1 && mcData[retadorIdx].usedGenres[i]);
-            });
-        }
-
-        function updateStatus() {
-            const s = document.getElementById('match-status');
-            if (!config.locked) s.innerText = "Modo Configuración: Ajusta participantes y guarda";
-            else if (retadorIdx === -1) s.innerText = "¡FIN DE LA COMPETENCIA!";
-            else if (!beatSelected) s.innerText = `Turno de ${mcData[retadorIdx].name} para elegir género`;
-            else s.innerText = `EN COMBATE: ${mcData[defensorIdx].name} VS ${mcData[retadorIdx].name}`;
-        }
-
-        let time, timer, running = false;
-        function toggleTimer() {
-            if(running) { clearInterval(timer); running = false; }
-            else {
-                time = parseInt(document.getElementById('timeInput').value);
-                running = true;
-                timer = setInterval(() => {
-                    time--; updateTimer();
-                    if(time <= 0) { clearInterval(timer); running = false; }
-                }, 1000);
-            }
-        }
-        
-        function updateTimer() {
-            const m = Math.floor(time/60), s = time%60;
-            document.getElementById('timer-display').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            document.getElementById('progress-bar').style.width = (time / parseInt(document.getElementById('timeInput').value) * 100) + "%";
-        }
-
-        function resetTimer() { 
-            clearInterval(timer); 
-            running = false; 
-            time = parseInt(document.getElementById('timeInput').value);
-            updateTimer(); 
-        }
-
-        window.onload = () => { initMCs(); renderBoard(); fetchBeats(); toggleGenreButtons(); };
-    </script>
-</body>
-</html>
