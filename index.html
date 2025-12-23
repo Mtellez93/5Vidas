@@ -3,115 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>5 Vidas - No Oficial</title>
+    <title>Red Bull 5 Vidas - Pro Manager</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         * { box-sizing: border-box; }
         body { margin: 0; padding: 0; background: linear-gradient(135deg, #0f1642 0%, #05081c 100%); color: white; font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* HEADER ULTRA COMPACTO (10% de la pantalla aprox) */
-        .admin-header { height: 45px; background: #252545; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; border-bottom: 1px solid #444; flex-shrink: 0; }
-        .ctrl-group { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; }
-        .btn-small { background: #444; color: white; border: none; padding: 4px 10px; cursor: pointer; border-radius: 4px; font-weight: bold; }
-        .btn-main { background: #ffd700; color: #000; padding: 6px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; border: none; font-size: 0.8rem; }
+        /* SECCIÓN SUPERIOR (45% de la pantalla) */
+        .top-half { height: 45%; display: flex; flex-direction: column; flex-shrink: 0; border-bottom: 2px solid #ffd700; background: #000; }
+
+        .admin-header { height: 40px; background: #252545; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; flex-shrink: 0; border-bottom: 1px solid #444; }
+        .ctrl-group { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; }
+        .btn-small { background: #444; color: white; border: none; padding: 3px 8px; cursor: pointer; border-radius: 4px; font-weight: bold; }
+        .btn-main { background: #ffd700; color: #000; padding: 5px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; border: none; font-size: 0.75rem; }
         .btn-main.locked { background: #4CAF50; color: white; }
 
-        /* ZONA MEDIA (VIDEO Y BEATS - 20% de la pantalla) */
-        .mid-zone { height: 130px; background: #000; flex-shrink: 0; display: flex; flex-direction: column; border-bottom: 1px solid #ffd700; position: relative; }
-        .beat-controls { background: #1a1a2e; height: 40px; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-genre { padding: 4px 12px; border: none; border-radius: 4px; font-weight: 800; font-size: 0.75rem; background: #2e3b8b; color: white; cursor: pointer; }
+        .beat-bar { background: #1a1a2e; height: 38px; display: flex; align-items: center; justify-content: center; gap: 8px; flex-shrink: 0; }
+        .btn-genre { padding: 4px 10px; border: none; border-radius: 4px; font-weight: 800; font-size: 0.7rem; background: #2e3b8b; color: white; cursor: pointer; text-transform: uppercase; }
         .btn-genre:disabled { opacity: 0.2; }
         
-        .timer-box { display: flex; align-items: center; gap: 5px; border-left: 1px solid #444; padding-left: 10px; }
-        #timer-display { font-family: monospace; font-size: 1.3rem; color: #f7b500; font-weight: bold; width: 60px; text-align: center; }
+        .timer-inline { display: flex; align-items: center; gap: 5px; border-left: 1px solid #444; padding-left: 10px; margin-left: 5px; }
+        #timer-display { font-family: monospace; font-size: 1.2rem; color: #f7b500; font-weight: bold; width: 55px; text-align: center; }
 
-        .video-container { flex-grow: 1; position: relative; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        .video-zone { flex-grow: 1; position: relative; display: flex; justify-content: center; align-items: center; overflow: hidden; }
         iframe { width: 100%; height: 100%; border: none; position: absolute; z-index: 2; background: transparent; }
-        .main-logo { height: 50px; opacity: 0.7; z-index: 1; }
+        .main-logo { height: 60px; opacity: 0.8; z-index: 1; }
 
-        /* TABLERO DE MCs (70% de la pantalla) */
-        .bottom-section { flex-grow: 1; display: flex; overflow-x: auto; padding: 15px; background: radial-gradient(circle at center, #1e2a78 0%, #0f1642 70%); gap: 15px; align-items: center; }
-        .player-column { flex: 0 0 230px; height: 95%; display: flex; flex-direction: column; background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; justify-content: space-between; }
-        .player-column.defensor { border-color: #4CAF50; background: rgba(76, 175, 80, 0.15); box-shadow: 0 0 15px rgba(76, 175, 80, 0.2); }
-        .player-column.retador { border-color: #f7b500; background: rgba(247, 181, 0, 0.15); box-shadow: 0 0 15px rgba(247, 181, 0, 0.2); }
+        /* SECCIÓN INFERIOR (55% de la pantalla) */
+        .bottom-half { height: 55%; display: flex; overflow-x: auto; padding: 12px; background: radial-gradient(circle at center, #1e2a78 0%, #0f1642 70%); gap: 12px; align-items: stretch; }
+        
+        .player-column { flex: 0 0 210px; display: flex; flex-direction: column; background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 10px; transition: 0.3s; justify-content: space-between; }
+        .player-column.defensor { border-color: #4CAF50; background: rgba(76, 175, 80, 0.12); box-shadow: 0 0 15px rgba(76, 175, 80, 0.2); }
+        .player-column.retador { border-color: #f7b500; background: rgba(247, 181, 0, 0.12); box-shadow: 0 0 15px rgba(247, 181, 0, 0.2); }
         .player-column.out { opacity: 0.1; filter: grayscale(1); }
 
-        .role-badge { font-size: 0.7rem; font-weight: 900; padding: 2px 10px; border-radius: 10px; text-align: center; text-transform: uppercase; margin-bottom: 5px; visibility: hidden; }
+        .role-badge { font-size: 0.65rem; font-weight: 900; padding: 2px 8px; border-radius: 8px; text-align: center; text-transform: uppercase; margin-bottom: 4px; visibility: hidden; }
         .defensor .role-badge { visibility: visible; background: #4CAF50; color: white; }
         .retador .role-badge { visibility: visible; background: #f7b500; color: #000; }
 
-        .mc-name { background: rgba(255,255,255,0.1); border: 1px solid white; padding: 8px; text-align: center; font-weight: bold; border-radius: 6px; font-size: 1.1rem; color: #fff; margin-bottom: 10px; }
-        .locked .mc-name { border: none; background: transparent; font-size: 1.6rem; color: #ffd700; }
+        .mc-name { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.5); padding: 5px; text-align: center; font-weight: bold; border-radius: 5px; font-size: 1rem; color: #fff; outline: none; }
+        .locked .mc-name { border: none; background: transparent; font-size: 1.4rem; color: #ffd700; padding: 2px; }
         
-        .hearts { display: flex; justify-content: center; gap: 5px; margin-bottom: 15px; }
-        .heart { cursor: pointer; font-size: 1.6rem; color: #ff0000; }
-        .heart.lost { opacity: 0.15; }
+        .hearts { display: flex; justify-content: center; gap: 4px; margin: 8px 0; }
+        .heart { cursor: pointer; font-size: 1.4rem; color: #ff0000; user-select: none; }
+        .heart.lost { opacity: 0.1; }
 
-        .genres-grid { display: flex; flex-direction: column; gap: 8px; }
-        .genre-box { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 8px; }
-        .genre-label { font-size: 0.9rem; font-weight: 900; text-transform: uppercase; }
-        .indicator { width: 16px; height: 16px; border-radius: 50%; border: 2px solid white; background: #8ce68c; }
+        .genres-grid { display: flex; flex-direction: column; gap: 5px; }
+        .genre-box { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: rgba(255, 255, 255, 0.08); border-radius: 6px; }
+        .genre-label { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; color: #eee; }
+        .indicator { width: 14px; height: 14px; border-radius: 50%; border: 1px solid white; background: #8ce68c; }
         .indicator.used { background: #333 !important; border-color: #555 !important; }
 
-        /* MODALES */
+        /* OVERLAYS */
         .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; }
-        .modal { background: #1a1a2e; border: 3px solid #ffd700; padding: 30px; border-radius: 20px; text-align: center; }
-        #winner-screen { display: none; position: fixed; inset: 0; background: radial-gradient(circle, #1e2a78, #000); z-index: 2000; flex-direction: column; align-items: center; justify-content: center; }
+        .modal { background: #1a1a2e; border: 2px solid #ffd700; padding: 25px; border-radius: 15px; text-align: center; max-width: 320px; }
+        #winner-screen { display: none; position: fixed; inset: 0; background: radial-gradient(circle, #1e2a78, #000); z-index: 2000; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
     </style>
 </head>
 <body>
 
-    <header class="admin-header">
-        <div class="ctrl-group">
-            MCs: <button class="btn-small" onclick="adjustCfg('totalMCs', -1)">-</button>
-            <span id="label-totalMCs">5</span>
-            <button class="btn-small" onclick="adjustCfg('totalMCs', 1)">+</button>
-        </div>
-        <div class="ctrl-group">
-            Vidas: <button class="btn-small" onclick="adjustCfg('startLives', -1)">-</button>
-            <span id="label-startLives">5</span>
-            <button class="btn-small" onclick="adjustCfg('startLives', 1)">+</button>
-        </div>
-        <button class="btn-main" id="save-lock" onclick="toggleLock()">💾 GUARDAR Y EMPEZAR</button>
-        <button class="btn-small" style="background:#ff4444;" onclick="location.reload()">RESET APP</button>
-    </header>
+    <div class="top-half">
+        <header class="admin-header">
+            <div class="ctrl-group">
+                MCs: <button class="btn-small" onclick="adjustCfg('totalMCs', -1)">-</button>
+                <span id="label-totalMCs" style="width:15px; text-align:center;">5</span>
+                <button class="btn-small" onclick="adjustCfg('totalMCs', 1)">+</button>
+            </div>
+            <div class="ctrl-group">
+                Vidas: <button class="btn-small" onclick="adjustCfg('startLives', -1)">-</button>
+                <span id="label-startLives" style="width:15px; text-align:center;">5</span>
+                <button class="btn-small" onclick="adjustCfg('startLives', 1)">+</button>
+            </div>
+            <button class="btn-main" id="save-lock" onclick="toggleLock()">💾 GUARDAR Y EMPEZAR</button>
+            <button class="btn-small" style="background:#ff4444;" onclick="location.reload()">RESET</button>
+        </header>
 
-    <div class="mid-zone">
-        <div class="beat-controls">
+        <div class="beat-bar">
             <button class="btn-genre" onclick="playMatch(0)">BoomBap</button>
             <button class="btn-genre" onclick="playMatch(1)">Trap</button>
             <button class="btn-genre" onclick="playMatch(2)">Reggae</button>
             <button class="btn-genre" onclick="playMatch(3)">Rock</button>
             <button class="btn-genre" onclick="playMatch(4)">D. Tempo</button>
             
-            <div class="timer-box">
-                <input type="number" id="timeInput" value="60" style="width: 45px; background: #000; color: #fff; border: 1px solid #555; text-align: center;">
+            <div class="timer-inline">
+                <input type="number" id="timeInput" value="60" style="width: 40px; background: #000; color: #fff; border: 1px solid #444; text-align: center; font-size: 0.8rem;">
                 <span id="timer-display">00:60</span>
                 <button class="btn-small" onclick="toggleTimer()">⏱</button>
                 <button class="btn-small" onclick="resetTimer()">🔄</button>
             </div>
         </div>
-        <div class="video-container">
+
+        <div class="video-zone">
             <img src="https://raw.githubusercontent.com/Mtellez93/5Vidas/refs/heads/main/logo.png" class="main-logo" alt="Logo">
             <iframe id="mediaFrame" src="" allow="autoplay; encrypted-media"></iframe>
         </div>
     </div>
 
-    <main class="bottom-section" id="scoreboard"></main>
+    <main class="bottom-half" id="scoreboard"></main>
 
     <div id="confirmModal" class="overlay">
         <div class="modal">
-            <h2 style="color:#ffd700; margin-top:0;">¿CONFIRMAR DERROTA?</h2>
-            <p id="confirmMsg" style="font-size: 1.2rem;"></p>
-            <button class="btn-main" style="background:#4CAF50; color:#fff; margin-right: 15px;" onclick="confirmAction(true)">SÍ, PERDIÓ VIDA</button>
-            <button class="btn-main" style="background:#ff4444; color:#fff;" onclick="confirmAction(false)">CANCELAR</button>
+            <h2 style="color:#ffd700; margin-top:0; font-size: 1.2rem;">¿QUITAR VIDA?</h2>
+            <p id="confirmMsg" style="margin-bottom: 20px;"></p>
+            <button class="btn-main" style="background:#4CAF50; color:#fff; margin-right: 10px;" onclick="confirmAction(true)">SÍ, PERDIÓ</button>
+            <button class="btn-main" style="background:#ff4444; color:#fff;" onclick="confirmAction(false)">NO</button>
         </div>
     </div>
 
     <div id="winner-screen">
-        <h1 style="letter-spacing: 15px;">CAMPEÓN</h1>
-        <div id="winner-display" style="font-size: 6rem; font-weight: 900; color: #ffd700; text-shadow: 0 0 50px #ffd700;">NOMBRE</div>
-        <button class="btn-main" style="margin-top: 40px; font-size: 1.5rem; padding: 20px 50px;" onclick="location.reload()">NUEVA BATALLA</button>
+        <h2 style="letter-spacing: 10px; color: white;">EL CAMPEÓN ES</h2>
+        <div id="winner-display" style="font-size: 5rem; font-weight: 900; color: #ffd700; text-shadow: 0 0 30px #ffd700;">NOMBRE</div>
+        <button class="btn-main" style="margin-top: 30px; font-size: 1.2rem; padding: 15px 40px;" onclick="location.reload()">REINICIAR TORNEO</button>
     </div>
 
     <script>
@@ -144,10 +146,10 @@
             const btn = document.getElementById('save-lock');
             if (config.locked) {
                 document.querySelectorAll('.mc-name').forEach((box, i) => { if(mcData[i]) mcData[i].name = box.innerText; });
-                btn.innerHTML = "🔓 EDITAR NOMBRES";
+                btn.innerHTML = "🔓 EDITAR";
                 btn.classList.add('locked');
             } else {
-                btn.innerHTML = "💾 GUARDAR Y EMPEZAR";
+                btn.innerHTML = "💾 GUARDAR";
                 btn.classList.remove('locked');
                 if(running) resetTimer();
             }
@@ -206,7 +208,7 @@
             if (retadorIdx === -1) {
                 document.getElementById('winner-display').innerText = mcData[defensorIdx].name;
                 document.getElementById('winner-screen').style.display = 'flex';
-                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+                confetti({ particleCount: 200, spread: 80, origin: { y: 0.6 }, colors: ['#ffd700', '#ffffff', '#ff0000'] });
             }
         }
 
