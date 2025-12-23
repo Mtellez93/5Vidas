@@ -3,49 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Red Bull 5 Vidas - Pro Manager</title>
+    <title>Red Bull 5 Vidas - Pro </title>
     <style>
         body { margin: 0; padding: 0; background: linear-gradient(135deg, #0f1642 0%, #05081c 100%); color: white; font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        .top-section { height: 40%; display: flex; flex-direction: column; background-color: #000; }
-        .media-controls { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; padding: 10px; background: #1a1a2e; border-bottom: 2px solid #333; }
         
-        /* Panel de Configuración */
-        .config-panel { background: #252545; padding: 5px 15px; display: flex; align-items: center; gap: 20px; font-size: 0.8rem; border-bottom: 1px solid #444; }
+        /* SECCIÓN SUPERIOR */
+        .top-section { height: 45%; display: flex; flex-direction: column; background-color: #000; flex-shrink: 0; }
+        
+        .config-panel { background: #252545; padding: 8px 15px; display: flex; align-items: center; gap: 20px; font-size: 0.8rem; border-bottom: 1px solid #444; flex-wrap: wrap; }
         .config-group { display: flex; align-items: center; gap: 8px; }
-        .btn-cfg { background: #444; color: white; border: none; padding: 2px 8px; cursor: pointer; border-radius: 3px; font-weight: bold; }
-        .btn-save { background: #ffd700; color: #000; padding: 5px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 5px; border: none; }
+        .btn-cfg { background: #444; color: white; border: none; padding: 4px 10px; cursor: pointer; border-radius: 3px; font-weight: bold; }
+        .btn-save { background: #ffd700; color: #000; padding: 6px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; border: none; transition: 0.3s; }
         .btn-save.locked { background: #4CAF50; color: white; }
 
-        .btn-media { padding: 8px 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.7rem; text-transform: uppercase; transition: 0.2s; }
+        .media-controls { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; padding: 10px; background: #1a1a2e; border-bottom: 2px solid #333; }
+        .btn-media { padding: 8px 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.7rem; text-transform: uppercase; }
         .btn-genre { background-color: #2e3b8b; color: white; border: 1px solid #4a59bd; }
         .btn-genre:disabled { background-color: #222; opacity: 0.5; cursor: not-allowed; }
         
-        .status-bar { background: #ffd700; color: #000; text-align: center; font-weight: bold; padding: 5px; font-size: 0.9rem; text-transform: uppercase; }
-        .timer-section { background: #000; padding: 5px 15px; display: flex; align-items: center; gap: 15px; border-bottom: 2px solid white; }
-        #timer-display { font-family: monospace; font-size: 1.5rem; font-weight: bold; color: #f7b500; min-width: 70px; }
+        .status-bar { background: #ffd700; color: #000; text-align: center; font-weight: bold; padding: 5px; font-size: 0.85rem; text-transform: uppercase; }
+        
+        iframe { width: 100%; height: 100%; border: none; background: #000; }
+
+        /* CRONÓMETRO */
+        .timer-section { background: #000; padding: 5px 15px; display: flex; align-items: center; gap: 15px; border-bottom: 2px solid white; flex-shrink: 0; }
+        #timer-display { font-family: monospace; font-size: 1.5rem; font-weight: bold; color: #f7b500; min-width: 75px; }
         .progress-container { flex-grow: 1; height: 10px; background: #333; border-radius: 10px; overflow: hidden; }
         #progress-bar { width: 100%; height: 100%; background: #4CAF50; transition: width 1s linear; }
 
-        .bottom-section { height: 60%; display: flex; overflow-x: auto; padding: 15px; background: radial-gradient(circle at center, #1e2a78 0%, #0f1642 70%); gap: 15px; box-sizing: border-box; }
-        .player-column { flex: 0 0 240px; display: flex; flex-direction: column; align-items: center; background: rgba(255, 255, 255, 0.05); border: 2px solid transparent; border-radius: 10px; padding: 12px; transition: 0.3s; position: relative; }
-        .player-column.defensor { border-color: #4CAF50; background: rgba(76, 175, 80, 0.1); }
-        .player-column.retador { border-color: #f7b500; background: rgba(247, 181, 0, 0.1); }
-        .player-column.out { opacity: 0.2; filter: grayscale(1); }
+        /* SECCIÓN INFERIOR (TABLERO) */
+        .bottom-section { 
+            height: 55%; 
+            display: flex; 
+            overflow-x: auto; 
+            padding: 20px; 
+            background: radial-gradient(circle at center, #1e2a78 0%, #0f1642 70%); 
+            gap: 15px; 
+            box-sizing: border-box;
+            align-items: flex-start;
+        }
+        .player-column { 
+            flex: 0 0 230px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            background: rgba(255, 255, 255, 0.05); 
+            border: 2px solid rgba(255,255,255,0.1); 
+            border-radius: 12px; 
+            padding: 15px; 
+            transition: 0.4s; 
+            min-height: 300px;
+        }
+        .player-column.defensor { border-color: #4CAF50; background: rgba(76, 175, 80, 0.15); box-shadow: 0 0 20px rgba(76, 175, 80, 0.2); }
+        .player-column.retador { border-color: #f7b500; background: rgba(247, 181, 0, 0.15); box-shadow: 0 0 20px rgba(247, 181, 0, 0.2); }
+        .player-column.out { opacity: 0.2; filter: grayscale(1); transform: scale(0.95); }
 
-        .role-label { font-size: 0.6rem; font-weight: bold; color: #000; background: #fff; padding: 2px 8px; border-radius: 10px; margin-bottom: 5px; visibility: hidden; }
-        .defensor .role-label, .retador .role-label { visibility: visible; }
-        .defensor .role-label { background: #4CAF50; color: white; }
-        .retador .role-label { background: #f7b500; }
+        .role-label { font-size: 0.65rem; font-weight: 900; padding: 3px 10px; border-radius: 20px; margin-bottom: 8px; text-transform: uppercase; visibility: hidden; }
+        .defensor .role-label { visibility: visible; background: #4CAF50; color: white; }
+        .retador .role-label { visibility: visible; background: #f7b500; color: #000; }
 
-        .editable-box { background: rgba(255,255,255,0.1); border: 1px solid white; padding: 5px; text-align: center; width: 90%; font-weight: bold; color: #fff; margin-bottom: 10px; outline: none; }
-        .locked .editable-box { border: none; background: transparent; pointer-events: none; }
+        .editable-box { background: rgba(255,255,255,0.1); border: 1px solid white; padding: 6px; text-align: center; width: 90%; font-weight: bold; color: #fff; margin-bottom: 12px; border-radius: 4px; outline: none; }
+        .locked .editable-box { border: none; background: transparent; pointer-events: none; font-size: 1.2rem; }
         
-        .lives-container { display: flex; gap: 3px; margin-bottom: 15px; }
-        .heart { cursor: pointer; font-size: 1.2rem; color: #ff0000; user-select: none; }
-        .heart.lost { filter: grayscale(100%); opacity: 0.2; }
-        .dot { width: 15px; height: 15px; background-color: #8ce68c; border-radius: 50%; border: 2px solid #fff; }
-        .dot.used { background-color: #444 !important; border-color: #777 !important; }
-        iframe { width: 100%; height: 100%; border: none; }
+        .lives-container { display: flex; gap: 4px; margin-bottom: 15px; }
+        .heart { cursor: pointer; font-size: 1.4rem; color: #ff0000; user-select: none; }
+        .heart.lost { filter: grayscale(100%); opacity: 0.15; }
+
+        .genres-list { display: flex; flex-direction: column; width: 100%; gap: 8px; }
+        .genre-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: rgba(255, 255, 255, 0.08); border-radius: 6px; }
+        .dot { width: 16px; height: 16px; background-color: #8ce68c; border-radius: 50%; border: 2px solid #fff; transition: 0.3s; }
+        .dot.used { background-color: #333 !important; border-color: #555 !important; }
     </style>
 </head>
 <body>
@@ -53,19 +80,19 @@
     <div class="top-section">
         <div class="config-panel" id="config-ui">
             <div class="config-group">
-                <span>MCs:</span>
+                <strong>MCs:</strong>
                 <button class="btn-cfg" onclick="adjustCfg('totalMCs', -1)">-</button>
-                <span id="label-totalMCs">5</span>
+                <span id="label-totalMCs" style="min-width: 15px; text-align: center; font-weight: bold;">5</span>
                 <button class="btn-cfg" onclick="adjustCfg('totalMCs', 1)">+</button>
             </div>
             <div class="config-group">
-                <span>VIDAS:</span>
+                <strong>VIDAS:</strong>
                 <button class="btn-cfg" onclick="adjustCfg('startLives', -1)">-</button>
-                <span id="label-startLives">5</span>
+                <span id="label-startLives" style="min-width: 15px; text-align: center; font-weight: bold;">5</span>
                 <button class="btn-cfg" onclick="adjustCfg('startLives', 1)">+</button>
             </div>
             <button class="btn-save" id="save-lock" onclick="toggleLock()">💾 GUARDAR Y EMPEZAR</button>
-            <button class="btn-media" style="background:#555; color:white; margin-left: auto;" onclick="location.reload()">REINICIAR TODO</button>
+            <button class="btn-media" style="background:#444; color:white; margin-left: auto;" onclick="if(confirm('¿Reiniciar todo?')) location.reload()">RESET</button>
         </div>
 
         <div class="media-controls">
@@ -73,13 +100,13 @@
             <button class="btn-media btn-genre" onclick="playMatch(1)">Trap</button>
             <button class="btn-media btn-genre" onclick="playMatch(2)">Reggae</button>
             <button class="btn-media btn-genre" onclick="playMatch(3)">Rock</button>
-            <button class="btn-media btn-genre" onclick="playMatch(4)">D.Tempo</button>
-            <span style="color:#555;">|</span>
-            <input type="number" id="timeInput" value="60" step="30" style="width: 50px; padding:5px;">
-            <button class="btn-media btn-timer" id="startBtn" onclick="toggleTimer()">⏱</button>
+            <button class="btn-media btn-genre" onclick="playMatch(4)">D. Tempo</button>
+            <span style="color:#444;">|</span>
+            <input type="number" id="timeInput" value="60" step="10" style="width: 50px; border-radius: 4px; border:none; padding: 4px; font-weight: bold;">
+            <button class="btn-media" id="startBtn" style="background:#f7b500;" onclick="toggleTimer()">⏱</button>
             <button class="btn-media" style="background:#28a745; color:white;" onclick="window.open('https://docs.google.com/spreadsheets/d/1a5DDloTeoj5TnJ6c3zgcRrfCpfnVBxgc4QtME7ko0Ws/', '_blank')">LISTA</button>
         </div>
-        <div class="status-bar" id="match-status">Configura la batalla y guarda para empezar</div>
+        <div class="status-bar" id="match-status">Configura y guarda para empezar la batalla</div>
         <iframe id="mediaFrame" src="" allow="autoplay; encrypted-media"></iframe>
     </div>
 
@@ -99,6 +126,15 @@
         let beatLibrary = [[],[],[],[],[]];
         let defensorIdx = 0, retadorIdx = 1, beatSelected = false;
 
+        function initMCs() {
+            mcData = Array(config.totalMCs).fill().map((_, i) => ({
+                name: `MC ${i+1}`,
+                lives: config.startLives,
+                out: false,
+                usedGenres: [false, false, false, false, false]
+            }));
+        }
+
         function adjustCfg(key, val) {
             if (config.locked) return;
             let newV = config[key] + val;
@@ -110,32 +146,20 @@
             }
         }
 
-        function initMCs() {
-            mcData = Array(config.totalMCs).fill().map((_, i) => ({
-                name: `MC ${i+1}`,
-                lives: config.startLives,
-                out: false,
-                usedGenres: [false, false, false, false, false]
-            }));
-        }
-
         function toggleLock() {
             config.locked = !config.locked;
             const btn = document.getElementById('save-lock');
-            const cfgUI = document.getElementById('config-ui');
             
             if (config.locked) {
-                // Guardar nombres actuales antes de bloquear
+                // Guardar nombres editados
                 document.querySelectorAll('.editable-box').forEach((box, i) => {
                     if(mcData[i]) mcData[i].name = box.innerText;
                 });
                 btn.innerHTML = "🔓 EDITAR NOMBRES";
                 btn.classList.add('locked');
-                cfgUI.querySelectorAll('.btn-cfg').forEach(b => b.style.display = 'none');
             } else {
                 btn.innerHTML = "💾 GUARDAR Y EMPEZAR";
                 btn.classList.remove('locked');
-                cfgUI.querySelectorAll('.btn-cfg').forEach(b => b.style.display = 'inline-block');
             }
             renderBoard();
             toggleGenreButtons();
@@ -144,13 +168,15 @@
 
         function renderBoard() {
             const sb = document.getElementById('scoreboard');
+            if(!sb) return;
             sb.className = `bottom-section ${config.locked ? 'locked' : ''}`;
             sb.innerHTML = ""; 
+            
             mcData.forEach((mc, i) => {
                 let col = document.createElement('div');
-                col.className = `player-column ${mc.out ? 'out' : ''} ${i===defensorIdx?'defensor':''} ${i===retadorIdx?'retador':''}`;
+                col.className = `player-column ${mc.out ? 'out' : ''} ${config.locked && i===defensorIdx?'defensor':''} ${config.locked && i===retadorIdx?'retador':''}`;
                 col.innerHTML = `
-                    <div class="role-label">${i===defensorIdx?'DEFENSOR':'RETADOR'}</div>
+                    <div class="role-label">${i===defensorIdx?'Defensor':'Retador'}</div>
                     <div class="editable-box" contenteditable="${!config.locked}">${mc.name}</div>
                     <div class="lives-container">
                         ${Array(config.startLives).fill().map((_, l) => `<span class="heart ${l >= mc.lives ? 'lost' : ''}" onclick="takeLife(${i}, ${l})">❤️</span>`).join('')}
@@ -158,7 +184,7 @@
                     <div class="genres-list">
                         ${["Boom Bap", "Trap", "Reggae", "Rock", "D. Tempo"].map((g, gi) => `
                             <div class="genre-item">
-                                <span style="font-size:0.6rem; font-weight:bold;">${g}</span>
+                                <span style="font-size:0.6rem; font-weight:900; text-transform:uppercase;">${g}</span>
                                 <div class="dot ${mc.usedGenres[gi] ? 'used' : ''}"></div>
                             </div>
                         `).join('')}
@@ -176,4 +202,95 @@
                 rows.forEach(row => {
                     row.split(',').forEach((url, i) => {
                         const reg = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-                        const m = url.match
+                        const m = url.match(reg);
+                        const id = (m && m[2].length === 11) ? m[2] : (url.trim().length === 11 ? url.trim() : null);
+                        if (id && i < 5) beatLibrary[i].push(id);
+                    });
+                });
+            } catch (e) { console.error("Error beats:", e); }
+        }
+
+        function playMatch(gi) {
+            if (!config.locked || beatSelected || mcData[retadorIdx].usedGenres[gi]) return;
+            const list = beatLibrary[gi];
+            if (!list.length) return alert("No hay beats disponibles");
+            
+            mcData[retadorIdx].usedGenres[gi] = true;
+            document.getElementById('mediaFrame').src = `https://www.youtube.com/embed/${list[Math.floor(Math.random()*list.length)]}?autoplay=1`;
+            beatSelected = true;
+            renderBoard();
+            toggleGenreButtons();
+            updateStatus();
+        }
+
+        function takeLife(idx, lIdx) {
+            if (!beatSelected || !config.locked) return;
+            if (confirm(`¿${mcData[idx].name} pierde una vida?`)) {
+                mcData[idx].lives--;
+                if (mcData[idx].lives <= 0) mcData[idx].out = true;
+                
+                if (idx === defensorIdx) { 
+                    defensorIdx = retadorIdx; 
+                    retadorIdx = findNextMC(retadorIdx); 
+                } else { 
+                    retadorIdx = findNextMC(retadorIdx); 
+                }
+                
+                beatSelected = false;
+                resetTimer();
+                renderBoard();
+                toggleGenreButtons();
+                updateStatus();
+            }
+        }
+
+        function findNextMC(curr) {
+            for (let i = 1; i <= mcData.length; i++) {
+                let next = (curr + i) % mcData.length;
+                if (!mcData[next].out && next !== defensorIdx) return next;
+            }
+            return -1;
+        }
+
+        function toggleGenreButtons() {
+            document.querySelectorAll('.btn-genre').forEach((b, i) => {
+                b.disabled = !config.locked || beatSelected || (retadorIdx !== -1 && mcData[retadorIdx].usedGenres[i]);
+            });
+        }
+
+        function updateStatus() {
+            const s = document.getElementById('match-status');
+            if (!config.locked) s.innerText = "Modo Configuración: Ajusta participantes y guarda";
+            else if (retadorIdx === -1) s.innerText = "¡FIN DE LA COMPETENCIA!";
+            else if (!beatSelected) s.innerText = `Turno de ${mcData[retadorIdx].name} para elegir género`;
+            else s.innerText = `EN COMBATE: ${mcData[defensorIdx].name} VS ${mcData[retadorIdx].name}`;
+        }
+
+        let time, timer, running = false;
+        function toggleTimer() {
+            if(running) { clearInterval(timer); running = false; }
+            else {
+                time = parseInt(document.getElementById('timeInput').value);
+                running = true;
+                timer = setInterval(() => {
+                    time--; updateTimer();
+                    if(time <= 0) { clearInterval(timer); running = false; }
+                }, 1000);
+            }
+        }
+        function updateTimer() {
+            const m = Math.floor(time/60), s = time%60;
+            document.getElementById('timer-display').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            document.getElementById('progress-bar').style.width = (time / parseInt(document.getElementById('timeInput').value) * 100) + "%";
+        }
+        function resetTimer() { clearInterval(timer); running = false; updateTimer(); }
+
+        window.onload = () => { 
+            initMCs(); 
+            renderBoard(); 
+            fetchBeats(); 
+            toggleGenreButtons(); 
+        };
+    </script>
+</body>
+</html>
