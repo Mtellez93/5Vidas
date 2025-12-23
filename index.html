@@ -7,276 +7,200 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         * { box-sizing: border-box; }
-        body { margin: 0; padding: 0; background: linear-gradient(135deg, #0f1642 0%, #05081c 100%); color: white; font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        body { margin: 0; padding: 0; background: #05081c; color: white; font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* SECCIÓN SUPERIOR (45% de la pantalla) */
-        .top-half { height: 45%; display: flex; flex-direction: column; flex-shrink: 0; border-bottom: 2px solid #ffd700; background: #000; }
+        /* BARRA SUPERIOR ÚNICA (Header) */
+        .main-header { 
+            height: 50px; 
+            background: #1a1a2e; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 0 15px; 
+            border-bottom: 2px solid #ffd700; 
+            flex-shrink: 0; 
+            gap: 10px;
+        }
 
-        .admin-header { height: 40px; background: #252545; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; flex-shrink: 0; border-bottom: 1px solid #444; }
-        .ctrl-group { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; }
-        .btn-small { background: #444; color: white; border: none; padding: 3px 8px; cursor: pointer; border-radius: 4px; font-weight: bold; }
-        .btn-main { background: #ffd700; color: #000; padding: 5px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; border: none; font-size: 0.75rem; }
-        .btn-main.locked { background: #4CAF50; color: white; }
-
-        .beat-bar { background: #1a1a2e; height: 38px; display: flex; align-items: center; justify-content: center; gap: 8px; flex-shrink: 0; }
-        .btn-genre { padding: 4px 10px; border: none; border-radius: 4px; font-weight: 800; font-size: 0.7rem; background: #2e3b8b; color: white; cursor: pointer; text-transform: uppercase; }
-        .btn-genre:disabled { opacity: 0.2; }
+        .group { display: flex; align-items: center; gap: 6px; font-size: 0.7rem; font-weight: bold; color: #aaa; }
+        .val { color: #fff; min-width: 15px; text-align: center; font-size: 0.8rem; }
         
-        .timer-inline { display: flex; align-items: center; gap: 5px; border-left: 1px solid #444; padding-left: 10px; margin-left: 5px; }
-        #timer-display { font-family: monospace; font-size: 1.2rem; color: #f7b500; font-weight: bold; width: 55px; text-align: center; }
+        .btn-action { background: #333; color: white; border: none; padding: 2px 8px; cursor: pointer; border-radius: 3px; font-weight: bold; }
+        .btn-action:hover { background: #555; }
 
-        .video-zone { flex-grow: 1; position: relative; display: flex; justify-content: center; align-items: center; overflow: hidden; }
-        iframe { width: 100%; height: 100%; border: none; position: absolute; z-index: 2; background: transparent; }
-        .main-logo { height: 60px; opacity: 0.8; z-index: 1; }
+        .btn-genre { background: #2e3b8b; color: white; border: none; padding: 5px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; cursor: pointer; }
+        .btn-genre:disabled { opacity: 0.2; cursor: not-allowed; }
 
-        /* SECCIÓN INFERIOR (55% de la pantalla) */
-        .bottom-half { height: 55%; display: flex; overflow-x: auto; padding: 12px; background: radial-gradient(circle at center, #1e2a78 0%, #0f1642 70%); gap: 12px; align-items: stretch; }
-        
-        .player-column { flex: 0 0 210px; display: flex; flex-direction: column; background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 10px; transition: 0.3s; justify-content: space-between; }
-        .player-column.defensor { border-color: #4CAF50; background: rgba(76, 175, 80, 0.12); box-shadow: 0 0 15px rgba(76, 175, 80, 0.2); }
-        .player-column.retador { border-color: #f7b500; background: rgba(247, 181, 0, 0.12); box-shadow: 0 0 15px rgba(247, 181, 0, 0.2); }
-        .player-column.out { opacity: 0.1; filter: grayscale(1); }
+        .timer-zone { display: flex; align-items: center; gap: 5px; background: #000; padding: 2px 8px; border-radius: 5px; border: 1px solid #444; }
+        #timer-display { font-family: monospace; font-size: 1.1rem; color: #f7b500; font-weight: bold; }
 
-        .role-badge { font-size: 0.65rem; font-weight: 900; padding: 2px 8px; border-radius: 8px; text-align: center; text-transform: uppercase; margin-bottom: 4px; visibility: hidden; }
-        .defensor .role-badge { visibility: visible; background: #4CAF50; color: white; }
-        .retador .role-badge { visibility: visible; background: #f7b500; color: #000; }
+        .btn-save { background: #ffd700; color: #000; padding: 6px 12px; border-radius: 4px; font-weight: 900; border: none; cursor: pointer; font-size: 0.7rem; }
+        .btn-save.locked { background: #4CAF50; color: white; }
 
-        .mc-name { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.5); padding: 5px; text-align: center; font-weight: bold; border-radius: 5px; font-size: 1rem; color: #fff; outline: none; }
-        .locked .mc-name { border: none; background: transparent; font-size: 1.4rem; color: #ffd700; padding: 2px; }
-        
-        .hearts { display: flex; justify-content: center; gap: 4px; margin: 8px 0; }
-        .heart { cursor: pointer; font-size: 1.4rem; color: #ff0000; user-select: none; }
+        /* SECCIÓN MEDIA (VIDEO) */
+        .video-section { height: 40%; background: #000; position: relative; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
+        iframe { width: 100%; height: 100%; border: none; position: absolute; z-index: 2; }
+        .logo-bg { height: 80px; opacity: 0.6; z-index: 1; }
+
+        /* SECCIÓN TABLERO (55%) */
+        .board-section { 
+            height: 55%; 
+            display: flex; 
+            overflow-x: auto; 
+            padding: 10px; 
+            gap: 10px; 
+            background: radial-gradient(circle at center, #1e2a78 0%, #05081c 90%); 
+            align-items: stretch;
+        }
+
+        .mc-card { flex: 0 0 200px; background: rgba(255,255,255,0.03); border: 2px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; justify-content: space-between; transition: 0.3s; }
+        .mc-card.defensor { border-color: #4CAF50; background: rgba(76, 175, 80, 0.1); }
+        .mc-card.retador { border-color: #f7b500; background: rgba(247, 181, 0, 0.1); }
+        .mc-card.out { opacity: 0.1; filter: grayscale(1); }
+
+        .badge { font-size: 0.6rem; font-weight: 900; text-align: center; text-transform: uppercase; margin-bottom: 5px; visibility: hidden; padding: 2px; border-radius: 4px; }
+        .defensor .badge { visibility: visible; background: #4CAF50; color: white; }
+        .retador .badge { visibility: visible; background: #f7b500; color: black; }
+
+        .name-input { background: rgba(255,255,255,0.05); border: 1px solid #555; color: white; text-align: center; font-weight: bold; font-size: 0.9rem; padding: 4px; border-radius: 4px; outline: none; }
+        .locked .name-input { border: none; background: transparent; font-size: 1.3rem; color: #ffd700; }
+
+        .hearts { display: flex; justify-content: center; gap: 3px; margin: 5px 0; }
+        .heart { font-size: 1.3rem; color: #ff4444; cursor: pointer; }
         .heart.lost { opacity: 0.1; }
 
-        .genres-grid { display: flex; flex-direction: column; gap: 5px; }
-        .genre-box { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: rgba(255, 255, 255, 0.08); border-radius: 6px; }
-        .genre-label { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; color: #eee; }
-        .indicator { width: 14px; height: 14px; border-radius: 50%; border: 1px solid white; background: #8ce68c; }
-        .indicator.used { background: #333 !important; border-color: #555 !important; }
+        .genre-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; background: rgba(255,255,255,0.05); border-radius: 4px; margin-top: 3px; }
+        .genre-txt { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: #ccc; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid #fff; background: #8ce68c; }
+        .dot.used { background: #222 !important; border-color: #444 !important; }
 
         /* OVERLAYS */
-        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; }
-        .modal { background: #1a1a2e; border: 2px solid #ffd700; padding: 25px; border-radius: 15px; text-align: center; max-width: 320px; }
-        #winner-screen { display: none; position: fixed; inset: 0; background: radial-gradient(circle, #1e2a78, #000); z-index: 2000; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center; }
+        .modal { background: #1a1a2e; border: 2px solid #ffd700; padding: 20px; border-radius: 10px; text-align: center; }
+        #win { display: none; position: fixed; inset: 0; background: #000; z-index: 200; flex-direction: column; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
-    <div class="top-half">
-        <header class="admin-header">
-            <div class="ctrl-group">
-                MCs: <button class="btn-small" onclick="adjustCfg('totalMCs', -1)">-</button>
-                <span id="label-totalMCs" style="width:15px; text-align:center;">5</span>
-                <button class="btn-small" onclick="adjustCfg('totalMCs', 1)">+</button>
+    <header class="main-header">
+        <div style="display: flex; gap: 15px;">
+            <div class="group">MCs: 
+                <button class="btn-action" onclick="adj('totalMCs', -1)">-</button>
+                <span class="val" id="l-totalMCs">5</span>
+                <button class="btn-action" onclick="adj('totalMCs', 1)">+</button>
             </div>
-            <div class="ctrl-group">
-                Vidas: <button class="btn-small" onclick="adjustCfg('startLives', -1)">-</button>
-                <span id="label-startLives" style="width:15px; text-align:center;">5</span>
-                <button class="btn-small" onclick="adjustCfg('startLives', 1)">+</button>
-            </div>
-            <button class="btn-main" id="save-lock" onclick="toggleLock()">💾 GUARDAR Y EMPEZAR</button>
-            <button class="btn-small" style="background:#ff4444;" onclick="location.reload()">RESET</button>
-        </header>
-
-        <div class="beat-bar">
-            <button class="btn-genre" onclick="playMatch(0)">BoomBap</button>
-            <button class="btn-genre" onclick="playMatch(1)">Trap</button>
-            <button class="btn-genre" onclick="playMatch(2)">Reggae</button>
-            <button class="btn-genre" onclick="playMatch(3)">Rock</button>
-            <button class="btn-genre" onclick="playMatch(4)">D. Tempo</button>
-            
-            <div class="timer-inline">
-                <input type="number" id="timeInput" value="60" style="width: 40px; background: #000; color: #fff; border: 1px solid #444; text-align: center; font-size: 0.8rem;">
-                <span id="timer-display">00:60</span>
-                <button class="btn-small" onclick="toggleTimer()">⏱</button>
-                <button class="btn-small" onclick="resetTimer()">🔄</button>
+            <div class="group">VIDAS: 
+                <button class="btn-action" onclick="adj('startLives', -1)">-</button>
+                <span class="val" id="l-startLives">5</span>
+                <button class="btn-action" onclick="adj('startLives', 1)">+</button>
             </div>
         </div>
 
-        <div class="video-zone">
-            <img src="https://raw.githubusercontent.com/Mtellez93/5Vidas/refs/heads/main/logo.png" class="main-logo" alt="Logo">
-            <iframe id="mediaFrame" src="" allow="autoplay; encrypted-media"></iframe>
+        <div style="display: flex; gap: 5px; flex-grow: 1; justify-content: center; padding: 0 20px; border-left: 1px solid #333; border-right: 1px solid #333;">
+            <button class="btn-genre" onclick="play(0)">BoomBap</button>
+            <button class="btn-genre" onclick="play(1)">Trap</button>
+            <button class="btn-genre" onclick="play(2)">Reggae</button>
+            <button class="btn-genre" onclick="play(3)">Rock</button>
+            <button class="btn-genre" onclick="play(4)">D.Tempo</button>
         </div>
-    </div>
 
-    <main class="bottom-half" id="scoreboard"></main>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <div class="timer-zone">
+                <input type="number" id="tIn" value="60" style="width:35px; background:transparent; color:#fff; border:none; font-size:0.8rem; text-align:center;">
+                <span id="timer-display">01:00</span>
+                <button class="btn-action" onclick="tglT()">⏱</button>
+            </div>
+            <button class="btn-save" id="lock-btn" onclick="tglL()">💾 GUARDAR</button>
+            <button class="btn-action" style="background:#600;" onclick="location.reload()">R</button>
+        </div>
+    </header>
 
-    <div id="confirmModal" class="overlay">
+    <section class="video-section">
+        <img src="https://raw.githubusercontent.com/Mtellez93/5Vidas/refs/heads/main/logo.png" class="logo-bg">
+        <iframe id="vid" src="" allow="autoplay"></iframe>
+    </section>
+
+    <main class="board-section" id="board"></main>
+
+    <div id="m-confirm" class="modal-bg">
         <div class="modal">
-            <h2 style="color:#ffd700; margin-top:0; font-size: 1.2rem;">¿QUITAR VIDA?</h2>
-            <p id="confirmMsg" style="margin-bottom: 20px;"></p>
-            <button class="btn-main" style="background:#4CAF50; color:#fff; margin-right: 10px;" onclick="confirmAction(true)">SÍ, PERDIÓ</button>
-            <button class="btn-main" style="background:#ff4444; color:#fff;" onclick="confirmAction(false)">NO</button>
+            <h3 id="m-msg"></h3>
+            <button class="btn-save" style="background:#4CAF50; color:white;" onclick="confirm(true)">SÍ, PERDIÓ</button>
+            <button class="btn-save" style="background:#f44; color:white; margin-left:10px;" onclick="confirm(false)">NO</button>
         </div>
     </div>
 
-    <div id="winner-screen">
-        <h2 style="letter-spacing: 10px; color: white;">EL CAMPEÓN ES</h2>
-        <div id="winner-display" style="font-size: 5rem; font-weight: 900; color: #ffd700; text-shadow: 0 0 30px #ffd700;">NOMBRE</div>
-        <button class="btn-main" style="margin-top: 30px; font-size: 1.2rem; padding: 15px 40px;" onclick="location.reload()">REINICIAR TORNEO</button>
+    <div id="win">
+        <h1 style="letter-spacing:10px;">CAMPEÓN</h1>
+        <div id="win-name" style="font-size:5rem; color:#ffd700; font-weight:900;"></div>
+        <button class="btn-save" style="margin-top:20px; padding:15px 40px;" onclick="location.reload()">REINICIAR</button>
     </div>
 
     <script>
-        const SHEET_ID = '1a5DDloTeoj5TnJ6c3zgcRrfCpfnVBxgc4QtME7ko0Ws';
-        const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
+        const SHEET_URL = `https://docs.google.com/spreadsheets/d/1a5DDloTeoj5TnJ6c3zgcRrfCpfnVBxgc4QtME7ko0Ws/gviz/tq?tqx=out:csv`;
+        let cfg = { totalMCs: 5, startLives: 5, locked: false };
+        let mcs = [], beats = [[],[],[],[],[]], defIdx = 0, retIdx = 1, bSel = false, pIdx = null;
+
+        function adj(k, v) { if(!cfg.locked) { let n = cfg[k]+v; if(n>=2 && n<=5){ cfg[k]=n; document.getElementById(`l-${k}`).innerText=n; init(); } } }
         
-        let config = { totalMCs: 5, startLives: 5, locked: false };
-        let mcData = [];
-        let beatLibrary = [[],[],[],[],[]];
-        let defensorIdx = 0, retadorIdx = 1, beatSelected = false, pendingLossIdx = null;
-
-        function initMCs() {
-            mcData = Array(config.totalMCs).fill().map((_, i) => ({
-                name: `MC ${i+1}`, lives: config.startLives, out: false, usedGenres: [false, false, false, false, false]
-            }));
+        function init() { mcs = Array(cfg.totalMCs).fill().map((_, i) => ({ name: `MC ${i+1}`, lives: cfg.startLives, out: false, used: [false,false,false,false,false] })); render(); }
+        
+        function tglL() { 
+            cfg.locked = !cfg.locked; 
+            if(cfg.locked) document.querySelectorAll('.name-input').forEach((el, i) => mcs[i].name = el.value);
+            document.getElementById('lock-btn').innerText = cfg.locked ? "🔓 EDITAR" : "💾 GUARDAR";
+            document.getElementById('lock-btn').classList.toggle('locked');
+            render(); 
         }
 
-        function adjustCfg(key, val) {
-            if (config.locked) return;
-            let newV = config[key] + val;
-            if (newV >= 2 && newV <= 5) {
-                config[key] = newV;
-                document.getElementById(`label-${key}`).innerText = newV;
-                initMCs(); renderBoard();
-            }
-        }
-
-        function toggleLock() {
-            config.locked = !config.locked;
-            const btn = document.getElementById('save-lock');
-            if (config.locked) {
-                document.querySelectorAll('.mc-name').forEach((box, i) => { if(mcData[i]) mcData[i].name = box.innerText; });
-                btn.innerHTML = "🔓 EDITAR";
-                btn.classList.add('locked');
-            } else {
-                btn.innerHTML = "💾 GUARDAR";
-                btn.classList.remove('locked');
-                if(running) resetTimer();
-            }
-            renderBoard(); toggleGenreButtons();
-        }
-
-        function renderBoard() {
-            const sb = document.getElementById('scoreboard');
-            sb.innerHTML = ""; 
-            mcData.forEach((mc, i) => {
-                let col = document.createElement('div');
-                col.className = `player-column ${mc.out ? 'out' : ''} ${config.locked && i===defensorIdx?'defensor':''} ${config.locked && i===retadorIdx?'retador':''}`;
-                col.innerHTML = `
-                    <div class="role-badge">${i===defensorIdx?'Defensor':'Retador'}</div>
-                    <div class="mc-name" contenteditable="${!config.locked}">${mc.name}</div>
-                    <div class="hearts">
-                        ${Array(config.startLives).fill().map((_, l) => `<span class="heart ${l >= mc.lives ? 'lost' : ''}" onclick="takeLife(${i})">❤️</span>`).join('')}
-                    </div>
-                    <div class="genres-grid">
-                        ${["Boom Bap", "Trap", "Reggae", "Rock", "D. Tempo"].map((g, gi) => `
-                            <div class="genre-box">
-                                <span class="genre-label">${g}</span>
-                                <div class="indicator ${mc.usedGenres[gi] ? 'used' : ''}"></div>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-                sb.appendChild(col);
+        function render() {
+            const b = document.getElementById('board'); b.innerHTML = "";
+            mcs.forEach((m, i) => {
+                let c = document.createElement('div');
+                c.className = `mc-card ${m.out?'out':''} ${cfg.locked&&i===defIdx?'defensor':''} ${cfg.locked&&i===retIdx?'retador':''}`;
+                c.innerHTML = `
+                    <div class="badge">${i===defIdx?'Defensor':'Retador'}</div>
+                    <input class="name-input" value="${m.name}" ${cfg.locked?'disabled':''}>
+                    <div class="hearts">${Array(cfg.startLives).fill().map((_, l) => `<span class="heart ${l>=m.lives?'lost':''}" onclick="lose(${i})">❤️</span>`).join('')}</div>
+                    <div>${["BoomBap","Trap","Reggae","Rock","D.Tempo"].map((g, gi) => `
+                        <div class="genre-row"><span class="genre-txt">${g}</span><div class="dot ${m.used[gi]?'used':''}"></div></div>
+                    `).join('')}</div>`;
+                b.appendChild(c);
             });
+            document.querySelectorAll('.btn-genre').forEach((b, i) => b.disabled = !cfg.locked || bSel || (retIdx!==-1 && mcs[retIdx].used[i]));
         }
 
-        function takeLife(idx) {
-            if (!beatSelected || !config.locked || mcData[idx].out) return;
-            if (idx !== defensorIdx && idx !== retadorIdx) return;
-            pendingLossIdx = idx;
-            document.getElementById('confirmMsg').innerText = `¿${mcData[idx].name} pierde una vida?`;
-            document.getElementById('confirmModal').style.display = 'flex';
+        function lose(i) { if(bSel && cfg.locked && !mcs[i].out && (i===defIdx || i===retIdx)) { pIdx=i; document.getElementById('m-msg').innerText=`¿${mcs[i].name} perdió vida?`; document.getElementById('m-confirm').style.display='flex'; } }
+        
+        function confirm(v) {
+            document.getElementById('m-confirm').style.display='none';
+            if(v && pIdx!==null) {
+                mcs[pIdx].lives--; if(mcs[pIdx].lives<=0) mcs[pIdx].out=true;
+                if(pIdx===defIdx) { defIdx=retIdx; retIdx=findN(retIdx); } else { retIdx=findN(retIdx); }
+                bSel=false; stopT(); render(); checkW();
+            } pIdx=null;
         }
 
-        function confirmAction(confirmed) {
-            document.getElementById('confirmModal').style.display = 'none';
-            if (confirmed && pendingLossIdx !== null) {
-                let idx = pendingLossIdx;
-                mcData[idx].lives--;
-                if (mcData[idx].lives <= 0) mcData[idx].out = true;
-                if (idx === defensorIdx) { defensorIdx = retadorIdx; retadorIdx = findNextMC(retadorIdx); }
-                else { retadorIdx = findNextMC(retadorIdx); }
-                beatSelected = false;
-                resetTimer(); renderBoard(); toggleGenreButtons();
-                checkWinner();
-            }
-            pendingLossIdx = null;
+        function findN(c) { for(let i=1; i<=mcs.length; i++){ let n=(c+i)%mcs.length; if(!mcs[n].out && n!==defIdx) return n; } return -1; }
+        
+        function checkW() { if(retIdx===-1) { document.getElementById('win-name').innerText=mcs[defIdx].name; document.getElementById('win').style.display='flex'; confetti(); } }
+
+        async function fetchB() { try { const r = await fetch(SHEET_URL); const t = await r.text(); const rows = t.replace(/"/g,'').split('\n').slice(1); rows.forEach(row => { row.split(',').forEach((u,i) => { let m = u.match(/[a-zA-Z0-9_-]{11}/); if(m && i<5) beats[i].push(m[0]); }); }); } catch(e){} }
+        
+        function play(gi) { 
+            if(!cfg.locked || bSel) return; 
+            let l = beats[gi]; if(!l.length) return;
+            mcs[retIdx].used[gi]=true; bSel=true;
+            document.getElementById('vid').src = `https://www.youtube.com/embed/${l[Math.floor(Math.random()*l.length)]}?autoplay=1`;
+            render(); 
         }
 
-        function checkWinner() {
-            if (retadorIdx === -1) {
-                document.getElementById('winner-display').innerText = mcData[defensorIdx].name;
-                document.getElementById('winner-screen').style.display = 'flex';
-                confetti({ particleCount: 200, spread: 80, origin: { y: 0.6 }, colors: ['#ffd700', '#ffffff', '#ff0000'] });
-            }
-        }
+        let s, t, r=false;
+        function tglT() { if(!cfg.locked) return; if(r) stopT(); else { s=parseInt(document.getElementById('tIn').value); r=true; t=setInterval(() => { s--; upT(); if(s<=0) stopT(); }, 1000); } }
+        function stopT() { clearInterval(t); r=false; s=parseInt(document.getElementById('tIn').value); upT(); }
+        function upT() { let m=Math.floor(s/60), sec=s%60; document.getElementById('timer-display').innerText=`${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`; }
 
-        function findNextMC(curr) {
-            for (let i = 1; i <= mcData.length; i++) {
-                let next = (curr + i) % mcData.length;
-                if (!mcData[next].out && next !== defensorIdx) return next;
-            }
-            return -1;
-        }
-
-        async function fetchBeats() {
-            try {
-                const response = await fetch(SHEET_URL);
-                const data = await response.text();
-                const rows = data.replace(/"/g, '').split(/\r?\n/).slice(1); 
-                rows.forEach(row => {
-                    row.split(',').forEach((url, i) => {
-                        const reg = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-                        const m = url.match(reg);
-                        const id = (m && m[2].length === 11) ? m[2] : (url.trim().length === 11 ? url.trim() : null);
-                        if (id && i < 5) beatLibrary[i].push(id);
-                    });
-                });
-            } catch (e) { console.error(e); }
-        }
-
-        function playMatch(gi) {
-            if (!config.locked || beatSelected || (retadorIdx !== -1 && mcData[retadorIdx].usedGenres[gi])) return;
-            const list = beatLibrary[gi];
-            if (!list.length) return alert("Sin beats");
-            mcData[retadorIdx].usedGenres[gi] = true;
-            document.getElementById('mediaFrame').src = `https://www.youtube.com/embed/${list[Math.floor(Math.random()*list.length)]}?autoplay=1`;
-            beatSelected = true;
-            renderBoard(); toggleGenreButtons();
-        }
-
-        function toggleGenreButtons() {
-            document.querySelectorAll('.btn-genre').forEach((b, i) => {
-                b.disabled = !config.locked || beatSelected || (retadorIdx !== -1 && mcData[retadorIdx].usedGenres[i]);
-            });
-        }
-
-        let time, timer, running = false;
-        function toggleTimer() {
-            if (!config.locked) return;
-            if(running) { clearInterval(timer); running = false; }
-            else {
-                time = parseInt(document.getElementById('timeInput').value);
-                running = true;
-                timer = setInterval(() => {
-                    time--; updateTimer();
-                    if(time <= 0) { clearInterval(timer); running = false; }
-                }, 1000);
-            }
-        }
-        function updateTimer() {
-            const m = Math.floor(time/60), s = time%60;
-            document.getElementById('timer-display').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-        }
-        function resetTimer() { 
-            if (!config.locked) return;
-            clearInterval(timer); running = false; 
-            time = parseInt(document.getElementById('timeInput').value);
-            updateTimer(); 
-        }
-
-        window.onload = () => { initMCs(); renderBoard(); fetchBeats(); toggleGenreButtons(); };
+        window.onload = () => { init(); fetchB(); };
     </script>
 </body>
 </html>
