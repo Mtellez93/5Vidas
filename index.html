@@ -3,27 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Red Bull 5 Vidas - Pro </title>
+    <title>Red Bull 5 Vidas - Pro Logo</title>
     <style>
         body { margin: 0; padding: 0; background: linear-gradient(135deg, #0f1642 0%, #05081c 100%); color: white; font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
         /* SECCIÓN SUPERIOR */
-        .top-section { height: 45%; display: flex; flex-direction: column; background-color: #000; flex-shrink: 0; }
+        .top-section { height: 45%; display: flex; flex-direction: column; background-color: #000; flex-shrink: 0; position: relative; }
         
-        .config-panel { background: #252545; padding: 8px 15px; display: flex; align-items: center; gap: 20px; font-size: 0.8rem; border-bottom: 1px solid #444; flex-wrap: wrap; }
+        .config-panel { background: #252545; padding: 8px 15px; display: flex; align-items: center; gap: 20px; font-size: 0.8rem; border-bottom: 1px solid #444; flex-wrap: wrap; z-index: 10; }
         .config-group { display: flex; align-items: center; gap: 8px; }
         .btn-cfg { background: #444; color: white; border: none; padding: 4px 10px; cursor: pointer; border-radius: 3px; font-weight: bold; }
         .btn-save { background: #ffd700; color: #000; padding: 6px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; border: none; transition: 0.3s; }
         .btn-save.locked { background: #4CAF50; color: white; }
 
-        .media-controls { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; padding: 10px; background: #1a1a2e; border-bottom: 2px solid #333; }
+        .media-controls { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; padding: 10px; background: #1a1a2e; border-bottom: 2px solid #333; z-index: 10; }
         .btn-media { padding: 8px 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.7rem; text-transform: uppercase; }
         .btn-genre { background-color: #2e3b8b; color: white; border: 1px solid #4a59bd; }
         .btn-genre:disabled { background-color: #222; opacity: 0.5; cursor: not-allowed; }
         
-        .status-bar { background: #ffd700; color: #000; text-align: center; font-weight: bold; padding: 5px; font-size: 0.85rem; text-transform: uppercase; }
+        .status-bar { background: #ffd700; color: #000; text-align: center; font-weight: bold; padding: 5px; font-size: 0.85rem; text-transform: uppercase; z-index: 10; }
         
-        iframe { width: 100%; height: 100%; border: none; background: #000; }
+        /* CONTENEDOR LOGO Y VIDEO */
+        .brand-frame { position: relative; flex-grow: 1; background: #000; overflow: hidden; }
+        iframe { width: 100%; height: 100%; border: none; position: relative; z-index: 2; background: transparent; }
+        .main-logo { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 150px; opacity: 0.6; z-index: 1; pointer-events: none; }
 
         /* CRONÓMETRO */
         .timer-section { background: #000; padding: 5px 15px; display: flex; align-items: center; gap: 15px; border-bottom: 2px solid white; flex-shrink: 0; }
@@ -32,28 +35,8 @@
         #progress-bar { width: 100%; height: 100%; background: #4CAF50; transition: width 1s linear; }
 
         /* SECCIÓN INFERIOR (TABLERO) */
-        .bottom-section { 
-            height: 55%; 
-            display: flex; 
-            overflow-x: auto; 
-            padding: 20px; 
-            background: radial-gradient(circle at center, #1e2a78 0%, #0f1642 70%); 
-            gap: 15px; 
-            box-sizing: border-box;
-            align-items: flex-start;
-        }
-        .player-column { 
-            flex: 0 0 230px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            background: rgba(255, 255, 255, 0.05); 
-            border: 2px solid rgba(255,255,255,0.1); 
-            border-radius: 12px; 
-            padding: 15px; 
-            transition: 0.4s; 
-            min-height: 300px;
-        }
+        .bottom-section { height: 55%; display: flex; overflow-x: auto; padding: 20px; background: radial-gradient(circle at center, #1e2a78 0%, #0f1642 70%); gap: 15px; box-sizing: border-box; align-items: flex-start; }
+        .player-column { flex: 0 0 230px; display: flex; flex-direction: column; align-items: center; background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; transition: 0.4s; min-height: 300px; }
         .player-column.defensor { border-color: #4CAF50; background: rgba(76, 175, 80, 0.15); box-shadow: 0 0 20px rgba(76, 175, 80, 0.2); }
         .player-column.retador { border-color: #f7b500; background: rgba(247, 181, 0, 0.15); box-shadow: 0 0 20px rgba(247, 181, 0, 0.2); }
         .player-column.out { opacity: 0.2; filter: grayscale(1); transform: scale(0.95); }
@@ -106,8 +89,13 @@
             <button class="btn-media" id="startBtn" style="background:#f7b500;" onclick="toggleTimer()">⏱</button>
             <button class="btn-media" style="background:#28a745; color:white;" onclick="window.open('https://docs.google.com/spreadsheets/d/1a5DDloTeoj5TnJ6c3zgcRrfCpfnVBxgc4QtME7ko0Ws/', '_blank')">LISTA</button>
         </div>
-        <div class="status-bar" id="match-status">Configura y guarda para empezar la batalla</div>
-        <iframe id="mediaFrame" src="" allow="autoplay; encrypted-media"></iframe>
+        
+        <div class="status-bar" id="match-status">Configura y guarda para empezar</div>
+
+        <div class="brand-frame">
+            <img src="https://www.pngall.com/wp-content/uploads/13/Red-Bull-Logo-PNG-File.png" class="main-logo" alt="Logo Evento">
+            <iframe id="mediaFrame" src="" allow="autoplay; encrypted-media"></iframe>
+        </div>
     </div>
 
     <div class="timer-section">
@@ -149,12 +137,8 @@
         function toggleLock() {
             config.locked = !config.locked;
             const btn = document.getElementById('save-lock');
-            
             if (config.locked) {
-                // Guardar nombres editados
-                document.querySelectorAll('.editable-box').forEach((box, i) => {
-                    if(mcData[i]) mcData[i].name = box.innerText;
-                });
+                document.querySelectorAll('.editable-box').forEach((box, i) => { if(mcData[i]) mcData[i].name = box.innerText; });
                 btn.innerHTML = "🔓 EDITAR NOMBRES";
                 btn.classList.add('locked');
             } else {
@@ -171,7 +155,6 @@
             if(!sb) return;
             sb.className = `bottom-section ${config.locked ? 'locked' : ''}`;
             sb.innerHTML = ""; 
-            
             mcData.forEach((mc, i) => {
                 let col = document.createElement('div');
                 col.className = `player-column ${mc.out ? 'out' : ''} ${config.locked && i===defensorIdx?'defensor':''} ${config.locked && i===retadorIdx?'retador':''}`;
@@ -211,10 +194,9 @@
         }
 
         function playMatch(gi) {
-            if (!config.locked || beatSelected || mcData[retadorIdx].usedGenres[gi]) return;
+            if (!config.locked || beatSelected || (retadorIdx !== -1 && mcData[retadorIdx].usedGenres[gi])) return;
             const list = beatLibrary[gi];
-            if (!list.length) return alert("No hay beats disponibles");
-            
+            if (!list.length) return alert("Sin beats");
             mcData[retadorIdx].usedGenres[gi] = true;
             document.getElementById('mediaFrame').src = `https://www.youtube.com/embed/${list[Math.floor(Math.random()*list.length)]}?autoplay=1`;
             beatSelected = true;
@@ -225,17 +207,11 @@
 
         function takeLife(idx, lIdx) {
             if (!beatSelected || !config.locked) return;
-            if (confirm(`¿${mcData[idx].name} pierde una vida?`)) {
+            if (confirm(`¿${mcData[idx].name} pierde vida?`)) {
                 mcData[idx].lives--;
                 if (mcData[idx].lives <= 0) mcData[idx].out = true;
-                
-                if (idx === defensorIdx) { 
-                    defensorIdx = retadorIdx; 
-                    retadorIdx = findNextMC(retadorIdx); 
-                } else { 
-                    retadorIdx = findNextMC(retadorIdx); 
-                }
-                
+                if (idx === defensorIdx) { defensorIdx = retadorIdx; retadorIdx = findNextMC(retadorIdx); }
+                else { retadorIdx = findNextMC(retadorIdx); }
                 beatSelected = false;
                 resetTimer();
                 renderBoard();
@@ -285,12 +261,7 @@
         }
         function resetTimer() { clearInterval(timer); running = false; updateTimer(); }
 
-        window.onload = () => { 
-            initMCs(); 
-            renderBoard(); 
-            fetchBeats(); 
-            toggleGenreButtons(); 
-        };
+        window.onload = () => { initMCs(); renderBoard(); fetchBeats(); toggleGenreButtons(); };
     </script>
 </body>
 </html>
