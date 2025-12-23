@@ -3,76 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>5 Vidas - Producto No Oficial</title>
+    <title>5 Vidas - No Oficial</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         * { box-sizing: border-box; }
         body { margin: 0; padding: 0; background: linear-gradient(135deg, #0f1642 0%, #05081c 100%); color: white; font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* SECCIÓN SUPERIOR (COMPACTA) */
-        .top-section { height: 40%; display: flex; flex-direction: column; background-color: #000; flex-shrink: 0; position: relative; }
+        /* SECCIÓN SUPERIOR (ESTRUCTURA) */
+        .top-section { height: 42%; display: flex; flex-direction: column; background-color: #000; flex-shrink: 0; position: relative; }
         
-        .config-panel { background: #252545; padding: 5px 15px; display: flex; align-items: center; gap: 15px; font-size: 0.75rem; border-bottom: 1px solid #444; z-index: 10; height: 40px; }
+        .config-panel { background: #252545; padding: 5px 15px; display: flex; align-items: center; gap: 15px; font-size: 0.8rem; border-bottom: 1px solid #444; z-index: 10; height: 40px; }
         .config-group { display: flex; align-items: center; gap: 6px; }
         .btn-cfg { background: #444; color: white; border: none; padding: 2px 8px; cursor: pointer; border-radius: 3px; font-weight: bold; }
         .btn-save { background: #ffd700; color: #000; padding: 4px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; border: none; transition: 0.3s; }
         .btn-save.locked { background: #4CAF50; color: white; }
 
-        .media-controls { display: flex; justify-content: center; align-items: center; gap: 8px; padding: 5px; background: #1a1a2e; border-bottom: 1px solid #333; z-index: 10; height: 50px; }
-        .btn-media { padding: 6px 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.7rem; text-transform: uppercase; transition: opacity 0.3s; }
+        .media-controls { display: flex; justify-content: center; align-items: center; gap: 10px; padding: 5px; background: #1a1a2e; border-bottom: 1px solid #333; z-index: 10; height: 50px; }
+        .btn-media { padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.75rem; text-transform: uppercase; transition: opacity 0.3s; }
         .btn-media:disabled { opacity: 0.2; cursor: not-allowed; }
         .btn-genre { background-color: #2e3b8b; color: white; border: 1px solid #4a59bd; }
         
-        .status-bar { background: #ffd700; color: #000; text-align: center; font-weight: bold; padding: 4px; font-size: 0.8rem; text-transform: uppercase; z-index: 10; }
+        .status-bar { background: #ffd700; color: #000; text-align: center; font-weight: bold; padding: 4px; font-size: 0.85rem; text-transform: uppercase; z-index: 10; }
         
         .brand-frame { position: relative; flex-grow: 1; background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; }
         iframe { width: 100%; height: 100%; border: none; position: absolute; top: 0; left: 0; z-index: 2; background: transparent; }
-        .main-logo { position: relative; width: 140px; opacity: 0.8; z-index: 1; pointer-events: none; }
+        .main-logo { position: relative; width: 130px; opacity: 0.9; z-index: 1; pointer-events: none; }
 
         /* CRONÓMETRO */
         .timer-section { background: #000; padding: 5px 15px; display: flex; align-items: center; gap: 15px; border-bottom: 2px solid white; flex-shrink: 0; height: 45px; }
-        #timer-display { font-family: monospace; font-size: 1.4rem; font-weight: bold; color: #f7b500; min-width: 65px; }
-        .progress-container { flex-grow: 1; height: 8px; background: #333; border-radius: 10px; overflow: hidden; }
+        #timer-display { font-family: monospace; font-size: 1.5rem; font-weight: bold; color: #f7b500; min-width: 70px; }
+        .progress-container { flex-grow: 1; height: 10px; background: #333; border-radius: 10px; overflow: hidden; }
         #progress-bar { width: 100%; height: 100%; background: #4CAF50; transition: width 1s linear; }
 
         /* SECCIÓN INFERIOR (TABLERO) */
-        .bottom-section { flex-grow: 1; display: flex; overflow-x: auto; padding: 15px; background: radial-gradient(circle at center, #1e2a78 0%, #0f1642 70%); gap: 12px; align-items: stretch; }
-        .player-column { flex: 0 0 200px; display: flex; flex-direction: column; align-items: center; background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 10px; transition: 0.4s; height: 100%; }
+        .bottom-section { flex-grow: 1; display: flex; overflow-x: auto; padding: 15px; background: radial-gradient(circle at center, #1e2a78 0%, #0f1642 70%); gap: 15px; align-items: stretch; }
+        .player-column { flex: 0 0 220px; display: flex; flex-direction: column; align-items: center; background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; transition: 0.4s; height: 100%; }
         .player-column.defensor { border-color: #4CAF50; background: rgba(76, 175, 80, 0.15); box-shadow: 0 0 15px rgba(76, 175, 80, 0.2); }
         .player-column.retador { border-color: #f7b500; background: rgba(247, 181, 0, 0.15); box-shadow: 0 0 15px rgba(247, 181, 0, 0.2); }
         .player-column.out { opacity: 0.2; filter: grayscale(1); transform: scale(0.95); }
 
-        .role-label { font-size: 0.6rem; font-weight: 900; padding: 2px 8px; border-radius: 15px; margin-bottom: 5px; text-transform: uppercase; visibility: hidden; }
+        .role-label { font-size: 0.7rem; font-weight: 900; padding: 3px 10px; border-radius: 15px; margin-bottom: 8px; text-transform: uppercase; visibility: hidden; }
         .defensor .role-label { visibility: visible; background: #4CAF50; color: white; }
         .retador .role-label { visibility: visible; background: #f7b500; color: #000; }
 
-        .editable-box { background: rgba(255,255,255,0.1); border: 1px solid white; padding: 4px; text-align: center; width: 95%; font-weight: bold; color: #fff; margin-bottom: 8px; border-radius: 4px; outline: none; font-size: 0.9rem; }
-        .locked .editable-box { border: none; background: transparent; pointer-events: none; font-size: 1.1rem; }
+        .editable-box { background: rgba(255,255,255,0.1); border: 1px solid white; padding: 6px; text-align: center; width: 95%; font-weight: bold; color: #fff; margin-bottom: 10px; border-radius: 5px; outline: none; font-size: 1rem; }
+        .locked .editable-box { border: none; background: transparent; pointer-events: none; font-size: 1.25rem; }
         
-        .lives-container { display: flex; gap: 3px; margin-bottom: 10px; }
-        .heart { cursor: pointer; font-size: 1.2rem; color: #ff0000; user-select: none; transition: 0.2s; }
+        .lives-container { display: flex; gap: 4px; margin-bottom: 15px; }
+        .heart { cursor: pointer; font-size: 1.4rem; color: #ff0000; user-select: none; transition: 0.2s; }
         .heart.lost { filter: grayscale(100%); opacity: 0.15; }
 
-        .genres-list { display: flex; flex-direction: column; width: 100%; gap: 5px; flex-grow: 1; justify-content: center; }
-        .genre-item { display: flex; justify-content: space-between; align-items: center; padding: 4px 8px; background: rgba(255, 255, 255, 0.08); border-radius: 5px; }
-        .dot { width: 12px; height: 12px; background-color: #8ce68c; border-radius: 50%; border: 1px solid #fff; }
+        .genres-list { display: flex; flex-direction: column; width: 100%; gap: 6px; flex-grow: 1; justify-content: center; }
+        .genre-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: rgba(255, 255, 255, 0.1); border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); }
+        .genre-name { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: #e0e0e0; }
+        .dot { width: 14px; height: 14px; background-color: #8ce68c; border-radius: 50%; border: 2px solid #fff; flex-shrink: 0; }
         .dot.used { background-color: #333 !important; border-color: #555 !important; }
 
         /* MODALES */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { background: #1a1a2e; border: 2px solid #ffd700; padding: 25px; border-radius: 15px; text-align: center; max-width: 350px; }
-        .modal-btn { border: none; padding: 8px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; margin: 5px; text-transform: uppercase; }
+        .modal-btn { border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; margin: 5px; text-transform: uppercase; }
         
         #winner-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, #1e2a78 0%, #000 100%); z-index: 2000; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-        .winner-name { font-size: 4rem; color: #ffd700; text-shadow: 0 0 30px #ffd700; margin: 15px 0; font-weight: 900; text-transform: uppercase; }
+        .winner-name { font-size: 4.5rem; color: #ffd700; text-shadow: 0 0 30px #ffd700; margin: 15px 0; font-weight: 900; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
     <div id="confirmModal" class="modal-overlay">
         <div class="modal-content">
-            <h2 style="color:#ffd700; margin-top:0; font-size: 1.2rem;">🔥 VEREDICTO 🔥</h2>
-            <p id="confirmMsg" style="font-size: 1rem; margin-bottom: 15px;"></p>
+            <h2 style="color:#ffd700; margin-top:0; font-size: 1.3rem;">🔥 VEREDICTO 🔥</h2>
+            <p id="confirmMsg" style="font-size: 1.1rem; margin-bottom: 20px;"></p>
             <button class="modal-btn" style="background:#4CAF50; color:white;" onclick="confirmAction(true)">SÍ, PERDIÓ</button>
             <button class="modal-btn" style="background:#ff4444; color:white;" onclick="confirmAction(false)">CANCELAR</button>
         </div>
@@ -81,7 +82,7 @@
     <div id="winner-screen">
         <h3 style="color:white; letter-spacing: 5px;">TENEMOS UN CAMPEÓN</h3>
         <div class="winner-name" id="winner-display">NOMBRE</div>
-        <button class="btn-save" style="font-size: 1.2rem; padding: 10px 25px;" onclick="location.reload()">NUEVA BATALLA</button>
+        <button class="btn-save" style="font-size: 1.2rem; padding: 12px 30px;" onclick="location.reload()">NUEVA BATALLA</button>
     </div>
 
     <div class="top-section">
@@ -89,17 +90,17 @@
             <div class="config-group">
                 <strong>MCs:</strong>
                 <button class="btn-cfg" onclick="adjustCfg('totalMCs', -1)">-</button>
-                <span id="label-totalMCs" style="min-width: 15px; font-weight: bold;">5</span>
+                <span id="label-totalMCs" style="min-width: 20px; text-align: center; font-weight: bold;">5</span>
                 <button class="btn-cfg" onclick="adjustCfg('totalMCs', 1)">+</button>
             </div>
             <div class="config-group">
                 <strong>VIDAS:</strong>
                 <button class="btn-cfg" onclick="adjustCfg('startLives', -1)">-</button>
-                <span id="label-startLives" style="min-width: 15px; font-weight: bold;">5</span>
+                <span id="label-startLives" style="min-width: 20px; text-align: center; font-weight: bold;">5</span>
                 <button class="btn-cfg" onclick="adjustCfg('startLives', 1)">+</button>
             </div>
             <button class="btn-save" id="save-lock" onclick="toggleLock()">💾 GUARDAR</button>
-            <button class="btn-media" style="background:#444; color:white; margin-left: auto; padding: 4px 10px;" onclick="if(confirm('¿Reiniciar todo?')) location.reload()">RESET</button>
+            <button class="btn-media" style="background:#444; color:white; margin-left: auto; padding: 4px 12px;" onclick="if(confirm('¿Reiniciar todo?')) location.reload()">RESET</button>
         </div>
 
         <div class="media-controls">
@@ -109,7 +110,7 @@
             <button class="btn-media btn-genre" onclick="playMatch(3)">Rock</button>
             <button class="btn-media btn-genre" onclick="playMatch(4)">D. Tempo</button>
             <span style="color:#444;">|</span>
-            <input type="number" id="timeInput" value="60" step="10" style="width: 45px; border-radius: 4px; border:none; padding: 3px; font-weight: bold;">
+            <input type="number" id="timeInput" value="60" step="10" style="width: 50px; border-radius: 4px; border:none; padding: 4px; font-weight: bold; text-align: center;">
             <button class="btn-media" id="startBtn" style="background:#f7b500;" onclick="toggleTimer()">⏱</button>
             <button class="btn-media" id="resetBtn" style="background:#6c757d; color:white;" onclick="resetTimer()">🔄</button>
             <button class="btn-media" style="background:#28a745; color:white;" onclick="window.open('https://docs.google.com/spreadsheets/d/1a5DDloTeoj5TnJ6c3zgcRrfCpfnVBxgc4QtME7ko0Ws/', '_blank')">LISTA</button>
@@ -192,7 +193,7 @@
                     <div class="genres-list">
                         ${["Boom Bap", "Trap", "Reggae", "Rock", "D. Tempo"].map((g, gi) => `
                             <div class="genre-item">
-                                <span style="font-size:0.5rem; font-weight:900;">${g}</span>
+                                <span class="genre-name">${g}</span>
                                 <div class="dot ${mc.usedGenres[gi] ? 'used' : ''}"></div>
                             </div>
                         `).join('')}
@@ -229,7 +230,7 @@
             if (retadorIdx === -1) {
                 document.getElementById('winner-display').innerText = mcData[defensorIdx].name;
                 document.getElementById('winner-screen').style.display = 'flex';
-                var duration = 5 * 1000;
+                var duration = 6 * 1000;
                 var animationEnd = Date.now() + duration;
                 var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 3000 };
                 function randomInRange(min, max) { return Math.random() * (max - min) + min; }
@@ -269,54 +270,4 @@
 
         function playMatch(gi) {
             if (!config.locked || beatSelected || (retadorIdx !== -1 && mcData[retadorIdx].usedGenres[gi])) return;
-            const list = beatLibrary[gi];
-            if (!list.length) return alert("Sin beats");
-            mcData[retadorIdx].usedGenres[gi] = true;
-            document.getElementById('mediaFrame').src = `https://www.youtube.com/embed/${list[Math.floor(Math.random()*list.length)]}?autoplay=1`;
-            beatSelected = true;
-            renderBoard(); toggleGenreButtons(); updateStatus();
-        }
-
-        function toggleGenreButtons() {
-            document.querySelectorAll('.btn-genre').forEach((b, i) => {
-                b.disabled = !config.locked || beatSelected || (retadorIdx !== -1 && mcData[retadorIdx].usedGenres[i]);
-            });
-        }
-
-        function updateStatus() {
-            const s = document.getElementById('match-status');
-            if (!config.locked) s.innerText = "Configura y guarda";
-            else if (retadorIdx === -1) s.innerText = "¡FIN!";
-            else if (!beatSelected) s.innerText = `Turno: ${mcData[retadorIdx].name}`;
-            else s.innerText = `Combate: ${mcData[defensorIdx].name} VS ${mcData[retadorIdx].name}`;
-        }
-
-        let time, timer, running = false;
-        function toggleTimer() {
-            if (!config.locked) return;
-            if(running) { clearInterval(timer); running = false; }
-            else {
-                time = parseInt(document.getElementById('timeInput').value);
-                running = true;
-                timer = setInterval(() => {
-                    time--; updateTimer();
-                    if(time <= 0) { clearInterval(timer); running = false; }
-                }, 1000);
-            }
-        }
-        function updateTimer() {
-            const m = Math.floor(time/60), s = time%60;
-            document.getElementById('timer-display').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            document.getElementById('progress-bar').style.width = (time / parseInt(document.getElementById('timeInput').value) * 100) + "%";
-        }
-        function resetTimer() { 
-            if (!config.locked) return;
-            clearInterval(timer); running = false; 
-            time = parseInt(document.getElementById('timeInput').value);
-            updateTimer(); 
-        }
-
-        window.onload = () => { initMCs(); renderBoard(); fetchBeats(); toggleGenreButtons(); toggleTimerButtons(); };
-    </script>
-</body>
-</html>
+            const list
