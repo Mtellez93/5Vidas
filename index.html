@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Red Bull 5 Vidas - Pro Manager</title>
+    <title>5 Vidas - MOY666</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         * { box-sizing: border-box; }
@@ -19,16 +19,21 @@
             padding: 0 10px; 
             border-bottom: 2px solid #ffd700; 
             flex-shrink: 0; 
+            gap: 8px;
         }
 
         .group { display: flex; align-items: center; gap: 4px; font-size: 0.65rem; font-weight: bold; color: #aaa; }
         .val { color: #fff; min-width: 12px; text-align: center; font-size: 0.8rem; }
         
         .btn-action { background: #333; color: white; border: none; padding: 3px 6px; cursor: pointer; border-radius: 3px; font-weight: bold; font-size: 0.65rem; }
-        .btn-list { background: #28a745; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.6rem; font-weight: bold; cursor: pointer; text-decoration: none; display: flex; align-items: center; }
+        .btn-list { background: #28a745; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.6rem; font-weight: bold; cursor: pointer; text-decoration: none; display: flex; align-items: center; white-space: nowrap; }
 
         .btn-genre { background: #2e3b8b; color: white; border: none; padding: 5px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; cursor: pointer; }
         .btn-genre:disabled { opacity: 0.2; }
+
+        /* Input YouTube */
+        .yt-input { background: #000; border: 1px solid #444; color: #ffd700; padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; width: 120px; outline: none; }
+        .btn-load { background: #ff4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; cursor: pointer; }
 
         .timer-zone { display: flex; align-items: center; gap: 5px; background: #000; padding: 2px 8px; border-radius: 5px; border: 1px solid #444; }
         #timer-display { font-family: monospace; font-size: 1.1rem; color: #f7b500; font-weight: bold; min-width: 50px; text-align: center; }
@@ -36,22 +41,13 @@
         .btn-save { background: #ffd700; color: #000; padding: 5px 12px; border-radius: 4px; font-weight: 900; border: none; cursor: pointer; font-size: 0.7rem; }
         .btn-save.locked { background: #4CAF50; color: white; }
 
-        /* VIDEO (37% de la pantalla) */
+        /* VIDEO (37%) */
         .video-section { height: 37vh; background: #000; position: relative; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
         iframe { width: 100%; height: 100%; border: none; position: absolute; z-index: 2; }
         .logo-bg { height: 60px; opacity: 0.4; z-index: 1; }
 
-        /* TABLERO (55% de la pantalla) */
-        .board-section { 
-            height: 55vh; 
-            display: flex; 
-            overflow-x: auto; 
-            padding: 10px; 
-            gap: 10px; 
-            background: radial-gradient(circle at center, #1e2a78 0%, #05081c 90%); 
-            align-items: stretch;
-        }
-
+        /* TABLERO (55%) */
+        .board-section { height: 55vh; display: flex; overflow-x: auto; padding: 10px; gap: 10px; background: radial-gradient(circle at center, #1e2a78 0%, #05081c 90%); align-items: stretch; }
         .mc-card { flex: 0 0 190px; height: 100%; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px; display: flex; flex-direction: column; justify-content: space-between; }
         .mc-card.defensor { border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.08); }
         .mc-card.retador { border: 2px solid #f7b500; background: rgba(247, 181, 0, 0.08); }
@@ -62,7 +58,7 @@
         .retador .badge { visibility: visible; background: #f7b500; color: black; }
 
         .name-input { background: rgba(255,255,255,0.05); border: 1px solid #444; color: white; text-align: center; font-weight: bold; font-size: 0.9rem; padding: 3px; border-radius: 4px; width: 100%; }
-        .locked .name-input { border: none; background: transparent; font-size: 1.2rem; color: #ffd700; pointer-events: none; padding: 0; }
+        .locked .name-input { border: none; background: transparent; font-size: 1.2rem; color: #ffd700; pointer-events: none; }
 
         .hearts { display: flex; justify-content: center; gap: 2px; margin: 5px 0; }
         .heart { font-size: 1.1rem; color: #ff4444; cursor: pointer; }
@@ -81,7 +77,7 @@
 <body>
 
     <header class="main-header">
-        <div style="display: flex; gap: 10px;">
+        <div style="display: flex; gap: 8px;">
             <div class="group">MCs: 
                 <button class="btn-action" onclick="adj('totalMCs', -1)">-</button>
                 <span class="val" id="l-totalMCs">5</span>
@@ -94,16 +90,18 @@
             </div>
         </div>
 
-        <div style="display: flex; gap: 4px; flex-grow: 1; justify-content: center; padding: 0 10px; border-left: 1px solid #333; border-right: 1px solid #333;">
+        <div style="display: flex; gap: 4px; flex-grow: 1; justify-content: center; padding: 0 5px; border-left: 1px solid #333; border-right: 1px solid #333; align-items: center;">
             <button class="btn-genre" onclick="play(0)">BoomBap</button>
             <button class="btn-genre" onclick="play(1)">Trap</button>
             <button class="btn-genre" onclick="play(2)">Reggae</button>
             <button class="btn-genre" onclick="play(3)">Rock</button>
             <button class="btn-genre" onclick="play(4)">D.Tempo</button>
             <a href="https://docs.google.com/spreadsheets/d/1a5DDloTeoj5TnJ6c3zgcRrfCpfnVBxgc4QtME7ko0Ws/" target="_blank" class="btn-list">LISTA 🔗</a>
+            <input type="text" id="ytUrl" class="yt-input" placeholder="ID o Link YT">
+            <button class="btn-load" onclick="loadManualYt()">CARGAR</button>
         </div>
 
-        <div style="display: flex; gap: 8px; align-items: center;">
+        <div style="display: flex; gap: 6px; align-items: center;">
             <div class="timer-zone">
                 <button class="btn-action" onclick="adjTime(-30)">-30s</button>
                 <span id="timer-display">01:00</span>
@@ -171,7 +169,23 @@
             document.querySelectorAll('.btn-genre').forEach((b, i) => b.disabled = !cfg.locked || bSel || (retIdx!==-1 && mcs[retIdx].used[i]));
         }
 
-        function lose(i) { if(bSel && cfg.locked && !mcs[i].out && (i===defIdx || i===retIdx)) { pIdx=i; document.getElementById('m-msg').innerText=`¿${mcs[i].name} perdió vida?`; document.getElementById('m-confirm').style.display='flex'; } }
+        function loadManualYt() {
+            let val = document.getElementById('ytUrl').value.trim();
+            if(!val) return;
+            let id = "";
+            if(val.length === 11) id = val;
+            else {
+                let m = val.match(/[a-zA-Z0-9_-]{11}/);
+                if(m) id = m[0];
+            }
+            if(id) {
+                document.getElementById('vid').src = `https://www.youtube.com/embed/${id}?autoplay=1`;
+                bSel = true; // Marca como beat seleccionado para habilitar quitar vida
+                render();
+            }
+        }
+
+        function lose(i) { if(bSel && cfg.locked && !mcs[i].out && (i===defIdx || i===retIdx)) { pIdx=i; document.getElementById('m-msg').innerText=`¿${mcs[i].name} perdió una vida?`; document.getElementById('m-confirm').style.display='flex'; } }
         function confirm(v) {
             document.getElementById('m-confirm').style.display='none';
             if(v && pIdx!==null) {
