@@ -43,11 +43,10 @@
         /* VIDEO (37%) */
         .video-section { height: 37vh; background: #000; position: relative; display: flex; justify-content: center; align-items: center; flex-shrink: 0; overflow: hidden; }
         iframe { width: 100%; height: 100%; border: none; position: absolute; z-index: 2; background: transparent; }
-        
         .logo-bg { height: 97%; max-width: 90%; object-fit: contain; opacity: 0.50; z-index: 1; transition: transform 0.3s ease; }
 
-        /* TABLERO (55%) */
-        .board-section { height: 55vh; display: flex; overflow-x: auto; padding: 10px; gap: 10px; background: radial-gradient(circle at center, #1e2a78 0%, #05081c 90%); align-items: stretch; justify-content: center; }
+        /* TABLERO (52% para dejar espacio al disclaimer) */
+        .board-section { height: 52vh; display: flex; overflow-x: auto; padding: 10px; gap: 10px; background: radial-gradient(circle at center, #1e2a78 0%, #05081c 90%); align-items: stretch; justify-content: center; }
         .mc-card { flex: 0 0 190px; height: 100%; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px; display: flex; flex-direction: column; justify-content: space-between; }
         .mc-card.defensor { border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.08); }
         .mc-card.retador { border: 2px solid #f7b500; background: rgba(247, 181, 0, 0.08); }
@@ -57,20 +56,7 @@
         .defensor .badge { visibility: visible; background: #4CAF50; color: white; }
         .retador .badge { visibility: visible; background: #f7b500; color: black; }
 
-        /* AJUSTE NOMBRES MCs: Centrado absoluto */
-        .name-input { 
-            background: rgba(255,255,255,0.05); 
-            border: 1px solid #444; 
-            color: white; 
-            text-align: center; 
-            font-weight: bold; 
-            font-size: 0.9rem; 
-            padding: 4px 0; 
-            border-radius: 4px; 
-            width: 100%; 
-            display: block;
-            margin: 0 auto;
-        }
+        .name-input { background: rgba(255,255,255,0.05); border: 1px solid #444; color: white; text-align: center; font-weight: bold; font-size: 0.9rem; padding: 4px 0; border-radius: 4px; width: 100%; display: block; margin: 0 auto; }
         .locked .name-input { border: none; background: transparent; font-size: 1.25rem; color: #ffd700; pointer-events: none; }
 
         .hearts { display: flex; justify-content: center; gap: 2px; margin: 5px 0; }
@@ -82,6 +68,21 @@
         .dot { width: 10px; height: 10px; border-radius: 50%; border: 1px solid #fff; background: #8ce68c; }
         .dot.used { background: #222 !important; border-color: #444 !important; }
 
+        /* DISCLAIMER (3% de la pantalla) */
+        .disclaimer {
+            height: 3vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #05081c;
+            color: rgba(255,255,255,0.4);
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            flex-shrink: 0;
+        }
+
         .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; align-items: center; justify-content: center; }
         .modal { background: #1a1a2e; border: 2px solid #ffd700; padding: 20px; border-radius: 10px; text-align: center; }
         #win { display: none; position: fixed; inset: 0; background: #000; z-index: 200; flex-direction: column; align-items: center; justify-content: center; }
@@ -90,7 +91,7 @@
 <body>
 
     <header class="main-header">
-        <div style="display: flex; gap: 8px;">
+        <div style="display: flex; gap: 8px; align-items: center;">
             <div class="group">MCs: 
                 <button class="btn-action" onclick="adj('totalMCs', -1)">-</button>
                 <span class="val" id="l-totalMCs">5</span>
@@ -132,6 +133,10 @@
     </section>
 
     <main class="board-section" id="board"></main>
+
+    <footer class="disclaimer">
+        Este producto tiene fines estrictamente recreativos y está libre de fines de lucro.
+    </footer>
 
     <div id="m-confirm" class="modal-bg">
         <div class="modal">
@@ -221,6 +226,3 @@
     </script>
 </body>
 </html>
-
-
-
