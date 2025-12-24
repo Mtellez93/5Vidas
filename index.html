@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>5 Vidas - MOY666 Products</title>
+    <title>Batallas 5 Vidas - MOY666 Products</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         * { box-sizing: border-box; }
         body { margin: 0; padding: 0; background: #05081c; color: white; font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* BARRA SUPERIOR (8% de la pantalla) */
+        /* BARRA SUPERIOR (8%) */
         .main-header { 
             height: 8vh; 
             background: #1a1a2e; 
@@ -26,7 +26,7 @@
         .val { color: #fff; min-width: 12px; text-align: center; font-size: 0.8rem; }
         
         .btn-action { background: #333; color: white; border: none; padding: 3px 6px; cursor: pointer; border-radius: 3px; font-weight: bold; font-size: 0.65rem; }
-        .btn-list { background: #28a745; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.6rem; font-weight: bold; cursor: pointer; text-decoration: none; display: flex; align-items: center; white-space: nowrap; }
+        .btn-list { background: #28a745; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.6rem; font-weight: bold; cursor: pointer; text-decoration: none; display: flex; align-items: center; }
 
         .btn-genre { background: #2e3b8b; color: white; border: none; padding: 5px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; cursor: pointer; }
         .btn-genre:disabled { opacity: 0.2; }
@@ -40,48 +40,50 @@
         .btn-save { background: #ffd700; color: #000; padding: 5px 12px; border-radius: 4px; font-weight: 900; border: none; cursor: pointer; font-size: 0.7rem; }
         .btn-save.locked { background: #4CAF50; color: white; }
 
-        /* VIDEO (37%) */
-        .video-section { height: 37vh; background: #000; position: relative; display: flex; justify-content: center; align-items: center; flex-shrink: 0; overflow: hidden; }
+        /* VIDEO (Aumentado al 45% para reducir espacio abajo) */
+        .video-section { height: 45vh; background: #000; position: relative; display: flex; justify-content: center; align-items: center; flex-shrink: 0; overflow: hidden; }
         iframe { width: 100%; height: 100%; border: none; position: absolute; z-index: 2; background: transparent; }
         .logo-bg { height: 97%; max-width: 90%; object-fit: contain; opacity: 0.50; z-index: 1; transition: transform 0.3s ease; }
 
-        /* TABLERO (52% para dejar espacio al disclaimer) */
-        .board-section { height: 52vh; display: flex; overflow-x: auto; padding: 10px; gap: 10px; background: radial-gradient(circle at center, #1e2a78 0%, #05081c 90%); align-items: stretch; justify-content: center; }
-        .mc-card { flex: 0 0 190px; height: 100%; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px; display: flex; flex-direction: column; justify-content: space-between; }
+        /* TABLERO (44%) */
+        .board-section { height: 44vh; display: flex; overflow-x: auto; padding: 8px; gap: 10px; background: radial-gradient(circle at center, #1e2a78 0%, #05081c 90%); align-items: stretch; justify-content: center; }
+        
+        .mc-card { 
+            flex: 0 0 185px; 
+            height: 100%; 
+            background: rgba(255,255,255,0.03); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 8px; 
+            padding: 6px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: flex-start; /* Empuja todo hacia arriba */
+        }
+        
         .mc-card.defensor { border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.08); }
         .mc-card.retador { border: 2px solid #f7b500; background: rgba(247, 181, 0, 0.08); }
         .mc-card.out { opacity: 0.1; filter: grayscale(1); }
 
-        .badge { font-size: 0.6rem; font-weight: 900; text-align: center; text-transform: uppercase; margin-bottom: 4px; visibility: hidden; padding: 2px; border-radius: 3px; }
+        .badge { font-size: 0.55rem; font-weight: 900; text-align: center; text-transform: uppercase; margin-bottom: 2px; visibility: hidden; padding: 2px; border-radius: 3px; }
         .defensor .badge { visibility: visible; background: #4CAF50; color: white; }
         .retador .badge { visibility: visible; background: #f7b500; color: black; }
 
-        .name-input { background: rgba(255,255,255,0.05); border: 1px solid #444; color: white; text-align: center; font-weight: bold; font-size: 0.9rem; padding: 4px 0; border-radius: 4px; width: 100%; display: block; margin: 0 auto; }
-        .locked .name-input { border: none; background: transparent; font-size: 1.25rem; color: #ffd700; pointer-events: none; }
+        .name-input { background: rgba(255,255,255,0.05); border: 1px solid #444; color: white; text-align: center; font-weight: bold; font-size: 0.85rem; padding: 3px 0; border-radius: 4px; width: 100%; display: block; margin: 0 auto; }
+        .locked .name-input { border: none; background: transparent; font-size: 1.1rem; color: #ffd700; pointer-events: none; }
 
-        .hearts { display: flex; justify-content: center; gap: 2px; margin: 5px 0; }
-        .heart { font-size: 1.1rem; color: #ff4444; cursor: pointer; }
+        .hearts { display: flex; justify-content: center; gap: 2px; margin: 4px 0; }
+        .heart { font-size: 1rem; color: #ff4444; cursor: pointer; }
         .heart.lost { opacity: 0.1; }
 
-        .genre-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 8px; background: rgba(255,255,255,0.04); border-radius: 4px; margin-top: 2px; }
-        .genre-txt { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #bbb; }
-        .dot { width: 10px; height: 10px; border-radius: 50%; border: 1px solid #fff; background: #8ce68c; }
+        /* Filas de género más compactas */
+        .genre-list { display: flex; flex-direction: column; gap: 2px; margin-top: 4px; }
+        .genre-row { display: flex; justify-content: space-between; align-items: center; padding: 3px 6px; background: rgba(255,255,255,0.04); border-radius: 4px; }
+        .genre-txt { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; color: #bbb; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid #fff; background: #8ce68c; }
         .dot.used { background: #222 !important; border-color: #444 !important; }
 
-        /* DISCLAIMER (3% de la pantalla) */
-        .disclaimer {
-            height: 3vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #05081c;
-            color: rgba(255,255,255,0.4);
-            font-size: 0.6rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            flex-shrink: 0;
-        }
+        /* DISCLAIMER (3%) */
+        .disclaimer { height: 3vh; display: flex; align-items: center; justify-content: center; background: #05081c; color: rgba(255,255,255,0.3); font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.5px; border-top: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; }
 
         .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; align-items: center; justify-content: center; }
         .modal { background: #1a1a2e; border: 2px solid #ffd700; padding: 20px; border-radius: 10px; text-align: center; }
@@ -153,7 +155,7 @@
     </div>
 
     <script>
-        const SHEET_URL = `https://docs.google.com/spreadsheets/d/1a5DDloTeoj5TnJ6c3zgcRrfCpfnVBxgc4QtME7ko0Ws/gviz/tq?tqx=out:csv`;
+        const SHEET_URL = `https://docs.google.com/spreadsheets/d/1a5DDloTeoj5TnJ6c3zgcRrfCpfnVBxgc4QtME7ko0Ws/gviz/tq?tqx:out:csv`;
         let cfg = { totalMCs: 5, startLives: 5, locked: false };
         let mcs = [], beats = [[],[],[],[],[]], defIdx = 0, retIdx = 1, bSel = false, pIdx = null;
         let s = 60, t, r = false;
@@ -179,7 +181,7 @@
                     <div class="badge">${i===defIdx?'Defensor':'Retador'}</div>
                     <input class="name-input" value="${m.name}" ${cfg.locked?'disabled':''}>
                     <div class="hearts">${Array(cfg.startLives).fill().map((_, l) => `<span class="heart ${l>=m.lives?'lost':''}" onclick="lose(${i})">❤️</span>`).join('')}</div>
-                    <div style="flex-grow:1; display:flex; flex-direction:column; justify-content:center;">${["BoomBap","Trap","Reggae","Rock","D.Tempo"].map((g, gi) => `
+                    <div class="genre-list">${["BoomBap","Trap","Reggae","Rock","D.Tempo"].map((g, gi) => `
                         <div class="genre-row"><span class="genre-txt">${g}</span><div class="dot ${m.used[gi]?'used':''}"></div></div>
                     `).join('')}</div>`;
                 b.appendChild(c);
