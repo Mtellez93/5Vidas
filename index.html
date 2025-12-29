@@ -81,21 +81,22 @@
         .dot { width: 10px; height: 10px; border-radius: 50%; border: 1px solid #fff; background: #8ce68c; }
         .dot.used { background: #222 !important; border-color: #444 !important; }
 
-        /* ESTILO COMODÍN */
+        /* ESTILO COMODÍN ACTUALIZADO */
         .btn-comodin {
             margin-top: auto;
             background: #222;
             color: #ffd700;
             border: 1px solid #ffd700;
             border-radius: 4px;
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             font-weight: 900;
             padding: 6px;
             cursor: pointer;
             text-transform: uppercase;
             transition: 0.2s;
         }
-        .btn-comodin:disabled { opacity: 0.2; cursor: not-allowed; border-color: #444; color: #666; }
+        .btn-comodin:disabled { opacity: 0.1; cursor: not-allowed; border-color: #444; color: #444; }
+        .btn-comodin:hover:not(:disabled) { background: #ffd700; color: #000; }
 
         .disclaimer { height: 3vh; display: flex; align-items: center; justify-content: center; background: #05081c; color: rgba(255,255,255,0.3); font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.5px; border-top: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; }
         .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; align-items: center; justify-content: center; }
@@ -199,7 +200,9 @@
         function render() {
             const b = document.getElementById('board'); b.innerHTML = "";
             mcs.forEach((m, i) => {
-                let isCurrent = (i === defIdx || i === retIdx);
+                // REGLA: Solo el RETADOR puede usar comodín
+                let canUseComodin = (cfg.locked && !m.out && !m.comodinUsed && i === retIdx);
+                
                 let c = document.createElement('div');
                 c.className = `mc-card ${m.out?'out':''} ${cfg.locked&&i===defIdx?'defensor':''} ${cfg.locked&&i===retIdx?'retador':''}`;
                 c.innerHTML = `
@@ -210,7 +213,7 @@
                         <div class="genre-row"><span class="genre-txt">${g}</span><div class="dot ${m.used[gi]?'used':''}"></div></div>
                     `).join('')}</div>
                     <button class="btn-comodin" 
-                        ${(!cfg.locked || m.out || m.comodinUsed || !isCurrent) ? 'disabled' : ''} 
+                        ${!canUseComodin ? 'disabled' : ''} 
                         onclick="useComodin(${i})">
                         ${m.comodinUsed ? 'USADO' : 'COMODÍN'}
                     </button>`;
@@ -220,13 +223,21 @@
         }
 
         function useComodin(i) {
-            if(!confirm(`¿${mcs[i].name} quiere intercambiar roles y cambiar el Beat?`)) return;
+            // Verificación extra de seguridad
+            if(i !== retIdx) return;
+            
+            if(!confirm(`¿${mcs[i].name} (Retador) activa su comodín para ser DEFENSOR?`)) return;
+            
             mcs[i].comodinUsed = true;
-            let temp = defIdx;
-            defIdx = retIdx;
-            retIdx = temp;
+            
+            // Intercambio de roles
+            let oldDef = defIdx;
+            defIdx = retIdx; // El retador ahora defiende
+            retIdx = oldDef; // El que defendía ahora es retador (y elige beat)
+            
+            // Reset de estado de batalla
             bSel = false;
-            document.getElementById('vid').src = ""; // Resetea el video al usar comodín
+            document.getElementById('vid').src = ""; // Vuelve el logo
             stopT();
             render();
         }
@@ -263,7 +274,7 @@
                 }
 
                 bSel=false; 
-                document.getElementById('vid').src = ""; // <--- ESTO RESETEA EL LOGO AL QUITAR UNA VIDA
+                document.getElementById('vid').src = ""; 
                 stopT(); 
                 render(); 
                 checkW();
