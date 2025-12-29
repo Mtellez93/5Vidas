@@ -96,7 +96,6 @@
             transition: 0.2s;
         }
         .btn-comodin:disabled { opacity: 0.2; cursor: not-allowed; border-color: #444; color: #666; }
-        .btn-comodin.used-now { background: #ff4444; color: white; border-color: white; }
 
         .disclaimer { height: 3vh; display: flex; align-items: center; justify-content: center; background: #05081c; color: rgba(255,255,255,0.3); font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.5px; border-top: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; }
         .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; align-items: center; justify-content: center; }
@@ -227,7 +226,7 @@
             defIdx = retIdx;
             retIdx = temp;
             bSel = false;
-            document.getElementById('vid').src = "";
+            document.getElementById('vid').src = ""; // Resetea el video al usar comodín
             stopT();
             render();
         }
@@ -253,9 +252,21 @@
         function confirm(v) {
             document.getElementById('m-confirm').style.display='none';
             if(v && pIdx!==null) {
-                mcs[pIdx].lives--; if(mcs[pIdx].lives<=0) mcs[pIdx].out=true;
-                if(pIdx===defIdx) { defIdx=retIdx; retIdx=findN(retIdx); } else { retIdx=findN(retIdx); }
-                bSel=false; stopT(); render(); checkW();
+                mcs[pIdx].lives--; 
+                if(mcs[pIdx].lives<=0) mcs[pIdx].out=true;
+                
+                if(pIdx===defIdx) { 
+                    defIdx=retIdx; 
+                    retIdx=findN(retIdx); 
+                } else { 
+                    retIdx=findN(retIdx); 
+                }
+
+                bSel=false; 
+                document.getElementById('vid').src = ""; // <--- ESTO RESETEA EL LOGO AL QUITAR UNA VIDA
+                stopT(); 
+                render(); 
+                checkW();
             } pIdx=null;
         }
 
