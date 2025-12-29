@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Batallas 5 Vidas - MOY666 Products</title>
+    <title>5 Vidas - MOY666 Products</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         * { box-sizing: border-box; }
         
-        /* Uso de svh para evitar recortes en Android y Chrome */
         body { 
             margin: 0; padding: 0; background: #05081c; color: white; 
             font-family: 'Segoe UI', sans-serif; 
@@ -16,7 +15,6 @@
             display: flex; flex-direction: column; overflow: hidden; 
         }
         
-        /* BARRA SUPERIOR */
         .main-header { 
             min-height: 8vh; 
             background: #1a1a2e; 
@@ -43,12 +41,10 @@
         .btn-save { background: #ffd700; color: #000; padding: 5px 12px; border-radius: 4px; font-weight: 900; border: none; cursor: pointer; font-size: 0.7rem; }
         .btn-save.locked { background: #4CAF50; color: white; }
 
-        /* VIDEO */
         .video-section { height: 40vh; background: #000; position: relative; display: flex; justify-content: center; align-items: center; flex-shrink: 0; overflow: hidden; }
         iframe { width: 100%; height: 100%; border: none; position: absolute; z-index: 2; background: transparent; }
         .logo-bg { height: 90%; max-width: 90%; object-fit: contain; opacity: 0.40; z-index: 1; }
 
-        /* TABLERO */
         .board-section { 
             flex-grow: 1; 
             display: flex; overflow-x: auto; padding: 10px; gap: 10px; 
@@ -104,7 +100,6 @@
         }
         .btn-comodin:disabled { opacity: 0.1; color: #444; border-color: #444; }
 
-        /* MÓVIL */
         @media (max-width: 768px) {
             .main-header { height: auto; flex-direction: column; padding: 8px; gap: 8px; }
             .header-controls { flex-wrap: wrap; border: none; width: 100%; gap: 6px; }
@@ -219,7 +214,6 @@
         function render() {
             const b = document.getElementById('board'); b.innerHTML = "";
             mcs.forEach((m, i) => {
-                // Solo el RETADOR puede usar comodín
                 let canUseComodin = (cfg.locked && !m.out && !m.comodinUsed && i === retIdx);
                 let c = document.createElement('div');
                 c.className = `mc-card ${m.out?'out':''} ${cfg.locked&&i===defIdx?'defensor':''} ${cfg.locked&&i===retIdx?'retador':''}`;
@@ -237,26 +231,32 @@
                     </button>`;
                 b.appendChild(c);
             });
-            document.querySelectorAll('.btn-genre').forEach((b, i) => b.disabled = !cfg.locked || bSel || (retIdx!==-1 && mcs[retIdx].used[i]));
+            document.querySelectorAll('.btn-genre').forEach((btn, i) => btn.disabled = !cfg.locked || bSel || (retIdx!==-1 && mcs[retIdx].used[i]));
         }
 
         function useComodin(i) {
             if(i !== retIdx) return;
             if(!confirm(`¿${mcs[i].name} activa su comodín? Intercambiará roles con el Defensor.`)) return;
             
+            // 1. Intercambio de roles inmediato
+            let oldDef = defIdx;
+            let oldRet = retIdx;
+            defIdx = oldRet;
+            retIdx = oldDef;
+
+            // 2. Registro de uso
             mcs[i].comodinUsed = true;
             
-            // Intercambio de roles
-            let currentDef = defIdx;
-            let currentRet = retIdx;
-            
-            defIdx = currentRet; // El retador pasa a ser defensor
-            retIdx = currentDef; // El defensor pasa a ser retador
-            
-            // Reset de batalla
+            // 3. Reset de estado de batalla
             bSel = false;
-            document.getElementById('vid').src = "";
             stopT();
+            
+            // 4. Limpieza forzada de video
+            const v = document.getElementById('vid');
+            v.src = "about:blank"; 
+            setTimeout(() => { v.src = ""; }, 50);
+
+            // 5. Refresco visual
             render();
         }
 
