@@ -8,7 +8,7 @@
     <style>
         * { box-sizing: border-box; }
         
-        /* Uso de svh para evitar el recorte en Android/Chrome */
+        /* Uso de svh para evitar recortes en Android y Chrome */
         body { 
             margin: 0; padding: 0; background: #05081c; color: white; 
             font-family: 'Segoe UI', sans-serif; 
@@ -44,13 +44,13 @@
         .btn-save.locked { background: #4CAF50; color: white; }
 
         /* VIDEO */
-        .video-section { height: 42vh; background: #000; position: relative; display: flex; justify-content: center; align-items: center; flex-shrink: 0; overflow: hidden; }
+        .video-section { height: 40vh; background: #000; position: relative; display: flex; justify-content: center; align-items: center; flex-shrink: 0; overflow: hidden; }
         iframe { width: 100%; height: 100%; border: none; position: absolute; z-index: 2; background: transparent; }
         .logo-bg { height: 90%; max-width: 90%; object-fit: contain; opacity: 0.40; z-index: 1; }
 
-        /* TABLERO - Ajustado para empujar hacia arriba */
+        /* TABLERO */
         .board-section { 
-            flex-grow: 1; /* Ocupa el espacio restante */
+            flex-grow: 1; 
             display: flex; overflow-x: auto; padding: 10px; gap: 10px; 
             background: radial-gradient(circle at center, #1e2a78 0%, #05081c 90%); 
             align-items: stretch; justify-content: center; 
@@ -65,7 +65,7 @@
             padding: 8px; 
             display: flex; 
             flex-direction: column; 
-            justify-content: space-between; /* Empuja el comodín al fondo */
+            justify-content: space-between; 
             height: 100%;
         }
         
@@ -104,14 +104,13 @@
         }
         .btn-comodin:disabled { opacity: 0.1; color: #444; border-color: #444; }
 
-        /* MÓVIL OPTIMIZADO PARA ANDROID/CHROME */
+        /* MÓVIL */
         @media (max-width: 768px) {
             .main-header { height: auto; flex-direction: column; padding: 8px; gap: 8px; }
             .header-controls { flex-wrap: wrap; border: none; width: 100%; gap: 6px; }
             .video-section { height: 28vh; }
-            .board-section { justify-content: flex-start; padding-bottom: 15px; } /* Espacio extra abajo */
+            .board-section { justify-content: flex-start; padding-bottom: 15px; }
             .mc-card { flex: 0 0 150px; padding: 6px; }
-            .btn-genre { font-size: 0.5rem; padding: 3px 5px; }
         }
 
         .disclaimer { height: 3vh; min-height: 20px; display: flex; align-items: center; justify-content: center; background: #05081c; color: rgba(255,255,255,0.3); font-size: 0.5rem; text-transform: uppercase; border-top: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; }
@@ -220,6 +219,7 @@
         function render() {
             const b = document.getElementById('board'); b.innerHTML = "";
             mcs.forEach((m, i) => {
+                // Solo el RETADOR puede usar comodín
                 let canUseComodin = (cfg.locked && !m.out && !m.comodinUsed && i === retIdx);
                 let c = document.createElement('div');
                 c.className = `mc-card ${m.out?'out':''} ${cfg.locked&&i===defIdx?'defensor':''} ${cfg.locked&&i===retIdx?'retador':''}`;
@@ -242,12 +242,18 @@
 
         function useComodin(i) {
             if(i !== retIdx) return;
-            if(!confirm(`¿${mcs[i].name} activa su comodín? Se convertirá en DEFENSOR.`)) return;
+            if(!confirm(`¿${mcs[i].name} activa su comodín? Intercambiará roles con el Defensor.`)) return;
+            
             mcs[i].comodinUsed = true;
+            
+            // Intercambio de roles
             let currentDef = defIdx;
             let currentRet = retIdx;
-            defIdx = currentRet;
-            retIdx = currentDef;
+            
+            defIdx = currentRet; // El retador pasa a ser defensor
+            retIdx = currentDef; // El defensor pasa a ser retador
+            
+            // Reset de batalla
             bSel = false;
             document.getElementById('vid').src = "";
             stopT();
