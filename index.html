@@ -9,7 +9,7 @@
         * { box-sizing: border-box; }
         body { margin: 0; padding: 0; background: #05081c; color: white; font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* BARRA SUPERIOR (Escritorio) */
+        /* BARRA SUPERIOR */
         .main-header { 
             height: 8vh; 
             background: #1a1a2e; 
@@ -99,16 +99,14 @@
         }
         .btn-comodin:disabled { opacity: 0.1; color: #444; border-color: #444; }
 
-        /* --- RESPONSIVO PARA MÓVIL --- */
+        /* MÓVIL */
         @media (max-width: 768px) {
             .main-header { height: auto; flex-direction: column; padding: 10px; gap: 10px; }
             .header-controls { flex-wrap: wrap; border: none; width: 100%; gap: 10px; }
             .video-section { height: 30vh; }
-            .board-section { height: 55vh; justify-content: flex-start; } /* Scroll lateral en móvil */
+            .board-section { height: 55vh; justify-content: flex-start; }
             .mc-card { flex: 0 0 160px; }
             #timer-display { font-size: 0.9rem; }
-            .btn-genre { font-size: 0.55rem; padding: 4px; }
-            .yt-input { width: 80px; }
         }
 
         .disclaimer { height: 3vh; display: flex; align-items: center; justify-content: center; background: #05081c; color: rgba(255,255,255,0.3); font-size: 0.55rem; text-transform: uppercase; border-top: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; }
@@ -217,6 +215,7 @@
         function render() {
             const b = document.getElementById('board'); b.innerHTML = "";
             mcs.forEach((m, i) => {
+                // Solo el RETADOR puede usar comodín
                 let canUseComodin = (cfg.locked && !m.out && !m.comodinUsed && i === retIdx);
                 let c = document.createElement('div');
                 c.className = `mc-card ${m.out?'out':''} ${cfg.locked&&i===defIdx?'defensor':''} ${cfg.locked&&i===retIdx?'retador':''}`;
@@ -236,15 +235,27 @@
         }
 
         function useComodin(i) {
+            // SEGURIDAD: Solo el RETADOR puede activarlo
             if(i !== retIdx) return;
-            if(!confirm(`¿${mcs[i].name} activa su comodín?`)) return;
+            
+            if(!confirm(`¿${mcs[i].name} activa su comodín? Se convertirá en DEFENSOR.`)) return;
+            
+            // 1. Marcar como usado permanentemente para este MC
             mcs[i].comodinUsed = true;
-            let oldDef = defIdx;
-            defIdx = retIdx;
-            retIdx = oldDef;
+            
+            // 2. Intercambio de roles CRÍTICO
+            let currentDef = defIdx;
+            let currentRet = retIdx;
+            
+            defIdx = currentRet; // El retador ahora es el defensor (verde)
+            retIdx = currentDef; // El antiguo defensor ahora es el retador (amarillo)
+            
+            // 3. Resetear el estado de la batalla actual
             bSel = false;
-            document.getElementById('vid').src = "";
-            stopT();
+            document.getElementById('vid').src = ""; // Quitar video y poner logo
+            stopT(); // Detener timer
+            
+            // 4. Volver a dibujar todo para reflejar los nuevos colores y badges
             render();
         }
 
@@ -262,8 +273,17 @@
             if(v && pIdx!==null) {
                 mcs[pIdx].lives--; 
                 if(mcs[pIdx].lives<=0) mcs[pIdx].out=true;
-                if(pIdx===defIdx) { defIdx=retIdx; retIdx=findN(retIdx); } else { retIdx=findN(retIdx); }
-                bSel=false; document.getElementById('vid').src = ""; 
+                
+                // Lógica de rotación tras perder vida
+                if(pIdx===defIdx) { 
+                    defIdx=retIdx; 
+                    retIdx=findN(retIdx); 
+                } else { 
+                    retIdx=findN(retIdx); 
+                }
+
+                bSel=false; 
+                document.getElementById('vid').src = ""; 
                 stopT(); render(); checkW();
             } pIdx=null;
         }
