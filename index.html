@@ -2,16 +2,23 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Batallas 5 Vidas - MOY666 Products</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         * { box-sizing: border-box; }
-        body { margin: 0; padding: 0; background: #05081c; color: white; font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* Uso de svh para evitar el recorte en Android/Chrome */
+        body { 
+            margin: 0; padding: 0; background: #05081c; color: white; 
+            font-family: 'Segoe UI', sans-serif; 
+            height: 100vh; height: 100svh; 
+            display: flex; flex-direction: column; overflow: hidden; 
+        }
         
         /* BARRA SUPERIOR */
         .main-header { 
-            height: 8vh; 
+            min-height: 8vh; 
             background: #1a1a2e; 
             display: flex; 
             align-items: center; 
@@ -24,92 +31,90 @@
         }
 
         .header-controls { display: flex; gap: 4px; flex-grow: 1; justify-content: center; align-items: center; border-left: 1px solid #333; border-right: 1px solid #333; }
-
         .group { display: flex; align-items: center; gap: 4px; font-size: 0.65rem; font-weight: bold; color: #aaa; }
         .val { color: #fff; min-width: 12px; text-align: center; font-size: 0.8rem; }
-        
         .btn-action { background: #333; color: white; border: none; padding: 3px 6px; cursor: pointer; border-radius: 3px; font-weight: bold; font-size: 0.65rem; }
-        .btn-list { background: #28a745; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.6rem; font-weight: bold; cursor: pointer; text-decoration: none; display: flex; align-items: center; }
-
         .btn-genre { background: #2e3b8b; color: white; border: none; padding: 5px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; cursor: pointer; }
         .btn-genre:disabled { opacity: 0.2; }
-
-        .yt-input { background: #000; border: 1px solid #444; color: #ffd700; padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; width: 120px; outline: none; }
+        .yt-input { background: #000; border: 1px solid #444; color: #ffd700; padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; width: 100px; outline: none; }
         .btn-load { background: #ff4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; cursor: pointer; }
-
         .timer-zone { display: flex; align-items: center; gap: 5px; background: #000; padding: 2px 8px; border-radius: 5px; border: 1px solid #444; }
         #timer-display { font-family: monospace; font-size: 1.1rem; color: #f7b500; font-weight: bold; min-width: 50px; text-align: center; }
-
         .btn-save { background: #ffd700; color: #000; padding: 5px 12px; border-radius: 4px; font-weight: 900; border: none; cursor: pointer; font-size: 0.7rem; }
         .btn-save.locked { background: #4CAF50; color: white; }
 
-        /* VIDEO (45%) */
-        .video-section { height: 45vh; background: #000; position: relative; display: flex; justify-content: center; align-items: center; flex-shrink: 0; overflow: hidden; }
+        /* VIDEO */
+        .video-section { height: 42vh; background: #000; position: relative; display: flex; justify-content: center; align-items: center; flex-shrink: 0; overflow: hidden; }
         iframe { width: 100%; height: 100%; border: none; position: absolute; z-index: 2; background: transparent; }
-        .logo-bg { height: 97%; max-width: 90%; object-fit: contain; opacity: 0.50; z-index: 1; transition: transform 0.3s ease; }
+        .logo-bg { height: 90%; max-width: 90%; object-fit: contain; opacity: 0.40; z-index: 1; }
 
-        /* TABLERO (44%) */
-        .board-section { height: 44vh; display: flex; overflow-x: auto; padding: 10px; gap: 10px; background: radial-gradient(circle at center, #1e2a78 0%, #05081c 90%); align-items: stretch; justify-content: center; -webkit-overflow-scrolling: touch; }
+        /* TABLERO - Ajustado para empujar hacia arriba */
+        .board-section { 
+            flex-grow: 1; /* Ocupa el espacio restante */
+            display: flex; overflow-x: auto; padding: 10px; gap: 10px; 
+            background: radial-gradient(circle at center, #1e2a78 0%, #05081c 90%); 
+            align-items: stretch; justify-content: center; 
+            -webkit-overflow-scrolling: touch; 
+        }
         
         .mc-card { 
-            flex: 0 0 180px; 
-            height: 100%; 
+            flex: 0 0 170px; 
             background: rgba(255,255,255,0.03); 
             border: 1px solid rgba(255,255,255,0.1); 
             border-radius: 8px; 
             padding: 8px; 
             display: flex; 
             flex-direction: column; 
-            justify-content: flex-start;
-            position: relative;
+            justify-content: space-between; /* Empuja el comodín al fondo */
+            height: 100%;
         }
         
         .mc-card.defensor { border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.08); }
         .mc-card.retador { border: 2px solid #f7b500; background: rgba(247, 181, 0, 0.08); }
         .mc-card.out { opacity: 0.15; filter: grayscale(1); }
 
-        .badge { font-size: 0.6rem; font-weight: 900; text-align: center; text-transform: uppercase; margin-bottom: 4px; visibility: hidden; padding: 2px; border-radius: 3px; }
+        .badge { font-size: 0.6rem; font-weight: 900; text-align: center; text-transform: uppercase; visibility: hidden; padding: 2px; border-radius: 3px; }
         .defensor .badge { visibility: visible; background: #4CAF50; color: white; }
         .retador .badge { visibility: visible; background: #f7b500; color: black; }
 
         .name-input { background: rgba(255,255,255,0.05); border: 1px solid #444; color: white; text-align: center; font-weight: bold; font-size: 0.8rem; padding: 4px; border-radius: 4px; width: 100%; }
         .locked .name-input { border: none; background: transparent; font-size: 1.1rem; color: #ffd700; pointer-events: none; }
 
-        .hearts { display: flex; justify-content: center; gap: 2px; margin: 6px 0; }
+        .hearts { display: flex; justify-content: center; gap: 2px; margin: 4px 0; }
         .heart { font-size: 1rem; color: #ff4444; cursor: pointer; }
         .heart.lost { opacity: 0.1; }
 
-        .genre-list { display: flex; flex-direction: column; gap: 3px; margin-top: 4px; }
-        .genre-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 8px; background: rgba(255,255,255,0.06); border-radius: 4px; }
-        .genre-txt { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #eee; }
-        .dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid #fff; background: #8ce68c; }
+        .genre-list { display: flex; flex-direction: column; gap: 2px; }
+        .genre-row { display: flex; justify-content: space-between; align-items: center; padding: 3px 6px; background: rgba(255,255,255,0.06); border-radius: 4px; }
+        .genre-txt { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #eee; }
+        .dot { width: 7px; height: 7px; border-radius: 50%; border: 1px solid #fff; background: #8ce68c; }
         .dot.used { background: #222 !important; border-color: #444 !important; }
 
         .btn-comodin {
-            margin-top: auto;
             background: #222;
             color: #ffd700;
             border: 1px solid #ffd700;
             border-radius: 4px;
-            font-size: 0.6rem;
+            font-size: 0.55rem;
             font-weight: 900;
-            padding: 5px;
+            padding: 6px;
             cursor: pointer;
             text-transform: uppercase;
+            margin-top: 5px;
         }
         .btn-comodin:disabled { opacity: 0.1; color: #444; border-color: #444; }
 
-        /* MÓVIL */
+        /* MÓVIL OPTIMIZADO PARA ANDROID/CHROME */
         @media (max-width: 768px) {
-            .main-header { height: auto; flex-direction: column; padding: 10px; gap: 10px; }
-            .header-controls { flex-wrap: wrap; border: none; width: 100%; gap: 10px; }
-            .video-section { height: 30vh; }
-            .board-section { height: 55vh; justify-content: flex-start; }
-            .mc-card { flex: 0 0 160px; }
-            #timer-display { font-size: 0.9rem; }
+            .main-header { height: auto; flex-direction: column; padding: 8px; gap: 8px; }
+            .header-controls { flex-wrap: wrap; border: none; width: 100%; gap: 6px; }
+            .video-section { height: 28vh; }
+            .board-section { justify-content: flex-start; padding-bottom: 15px; } /* Espacio extra abajo */
+            .mc-card { flex: 0 0 150px; padding: 6px; }
+            .btn-genre { font-size: 0.5rem; padding: 3px 5px; }
         }
 
-        .disclaimer { height: 3vh; display: flex; align-items: center; justify-content: center; background: #05081c; color: rgba(255,255,255,0.3); font-size: 0.55rem; text-transform: uppercase; border-top: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; }
+        .disclaimer { height: 3vh; min-height: 20px; display: flex; align-items: center; justify-content: center; background: #05081c; color: rgba(255,255,255,0.3); font-size: 0.5rem; text-transform: uppercase; border-top: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; }
         .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
         .modal { background: #1a1a2e; border: 2px solid #ffd700; padding: 20px; border-radius: 10px; text-align: center; width: 100%; max-width: 300px; }
         #win { display: none; position: fixed; inset: 0; background: #000; z-index: 200; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
@@ -152,7 +157,7 @@
                 <button class="btn-action" style="background:#f7b500; color:#000;" onclick="tglT()">⏱</button>
             </div>
             <button class="btn-action" style="background:#600;" onclick="location.reload()">R</button>
-            <a href="https://docs.google.com/spreadsheets/d/1a5DDloTeoj5TnJ6c3zgcRrfCpfnVBxgc4QtME7ko0Ws/" target="_blank" class="btn-list">🔗</a>
+            <a href="https://docs.google.com/spreadsheets/d/1a5DDloTeoj5TnJ6c3zgcRrfCpfnVBxgc4QtME7ko0Ws/" target="_blank" style="text-decoration:none; background:#28a745; color:white; padding:2px 6px; border-radius:3px; font-size:0.6rem; font-weight:bold;">🔗</a>
         </div>
     </header>
 
@@ -215,17 +220,18 @@
         function render() {
             const b = document.getElementById('board'); b.innerHTML = "";
             mcs.forEach((m, i) => {
-                // Solo el RETADOR puede usar comodín
                 let canUseComodin = (cfg.locked && !m.out && !m.comodinUsed && i === retIdx);
                 let c = document.createElement('div');
                 c.className = `mc-card ${m.out?'out':''} ${cfg.locked&&i===defIdx?'defensor':''} ${cfg.locked&&i===retIdx?'retador':''}`;
                 c.innerHTML = `
-                    <div class="badge">${i===defIdx?'Defensor':'Retador'}</div>
-                    <input class="name-input" value="${m.name}" ${cfg.locked?'disabled':''}>
-                    <div class="hearts">${Array(cfg.startLives).fill().map((_, l) => `<span class="heart ${l>=m.lives?'lost':''}" onclick="lose(${i})">❤️</span>`).join('')}</div>
-                    <div class="genre-list">${["BoomBap","Trap","Reggae","Rock","D.Tempo"].map((g, gi) => `
-                        <div class="genre-row"><span class="genre-txt">${g}</span><div class="dot ${m.used[gi]?'used':''}"></div></div>
-                    `).join('')}</div>
+                    <div>
+                        <div class="badge">${i===defIdx?'Defensor':'Retador'}</div>
+                        <input class="name-input" value="${m.name}" ${cfg.locked?'disabled':''}>
+                        <div class="hearts">${Array(cfg.startLives).fill().map((_, l) => `<span class="heart ${l>=m.lives?'lost':''}" onclick="lose(${i})">❤️</span>`).join('')}</div>
+                        <div class="genre-list">${["BoomBap","Trap","Reggae","Rock","D.Tempo"].map((g, gi) => `
+                            <div class="genre-row"><span class="genre-txt">${g}</span><div class="dot ${m.used[gi]?'used':''}"></div></div>
+                        `).join('')}</div>
+                    </div>
                     <button class="btn-comodin" ${!canUseComodin ? 'disabled' : ''} onclick="useComodin(${i})">
                         ${m.comodinUsed ? 'USADO' : 'COMODÍN'}
                     </button>`;
@@ -235,27 +241,16 @@
         }
 
         function useComodin(i) {
-            // SEGURIDAD: Solo el RETADOR puede activarlo
             if(i !== retIdx) return;
-            
             if(!confirm(`¿${mcs[i].name} activa su comodín? Se convertirá en DEFENSOR.`)) return;
-            
-            // 1. Marcar como usado permanentemente para este MC
             mcs[i].comodinUsed = true;
-            
-            // 2. Intercambio de roles CRÍTICO
             let currentDef = defIdx;
             let currentRet = retIdx;
-            
-            defIdx = currentRet; // El retador ahora es el defensor (verde)
-            retIdx = currentDef; // El antiguo defensor ahora es el retador (amarillo)
-            
-            // 3. Resetear el estado de la batalla actual
+            defIdx = currentRet;
+            retIdx = currentDef;
             bSel = false;
-            document.getElementById('vid').src = ""; // Quitar video y poner logo
-            stopT(); // Detener timer
-            
-            // 4. Volver a dibujar todo para reflejar los nuevos colores y badges
+            document.getElementById('vid').src = "";
+            stopT();
             render();
         }
 
@@ -273,17 +268,8 @@
             if(v && pIdx!==null) {
                 mcs[pIdx].lives--; 
                 if(mcs[pIdx].lives<=0) mcs[pIdx].out=true;
-                
-                // Lógica de rotación tras perder vida
-                if(pIdx===defIdx) { 
-                    defIdx=retIdx; 
-                    retIdx=findN(retIdx); 
-                } else { 
-                    retIdx=findN(retIdx); 
-                }
-
-                bSel=false; 
-                document.getElementById('vid').src = ""; 
+                if(pIdx===defIdx) { defIdx=retIdx; retIdx=findN(retIdx); } else { retIdx=findN(retIdx); }
+                bSel=false; document.getElementById('vid').src = ""; 
                 stopT(); render(); checkW();
             } pIdx=null;
         }
