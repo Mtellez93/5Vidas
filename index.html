@@ -75,16 +75,30 @@
         .heart { font-size: 1.1rem; color: #ff4444; cursor: pointer; }
         .heart.lost { opacity: 0.1; }
 
-        /* Filas de género ACTUALIZADAS */
         .genre-list { display: flex; flex-direction: column; gap: 3px; margin-top: 6px; }
         .genre-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 10px; background: rgba(255,255,255,0.06); border-radius: 4px; }
         .genre-txt { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: #eee; letter-spacing: 0.5px; }
         .dot { width: 10px; height: 10px; border-radius: 50%; border: 1px solid #fff; background: #8ce68c; }
         .dot.used { background: #222 !important; border-color: #444 !important; }
 
-        /* DISCLAIMER (3%) */
-        .disclaimer { height: 3vh; display: flex; align-items: center; justify-content: center; background: #05081c; color: rgba(255,255,255,0.3); font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.5px; border-top: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; }
+        /* ESTILO COMODÍN */
+        .btn-comodin {
+            margin-top: auto;
+            background: #222;
+            color: #ffd700;
+            border: 1px solid #ffd700;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 900;
+            padding: 6px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+        .btn-comodin:disabled { opacity: 0.2; cursor: not-allowed; border-color: #444; color: #666; }
+        .btn-comodin.used-now { background: #ff4444; color: white; border-color: white; }
 
+        .disclaimer { height: 3vh; display: flex; align-items: center; justify-content: center; background: #05081c; color: rgba(255,255,255,0.3); font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.5px; border-top: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; }
         .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; align-items: center; justify-content: center; }
         .modal { background: #1a1a2e; border: 2px solid #ffd700; padding: 20px; border-radius: 10px; text-align: center; }
         #win { display: none; position: fixed; inset: 0; background: #000; z-index: 200; flex-direction: column; align-items: center; justify-content: center; }
@@ -161,7 +175,18 @@
         let s = 60, t, r = false;
 
         function adj(k, v) { if(!cfg.locked) { let n = cfg[k]+v; if(n>=2 && n<=5){ cfg[k]=n; document.getElementById(`l-${k}`).innerText=n; init(); } } }
-        function init() { mcs = Array(cfg.totalMCs).fill().map((_, i) => ({ name: `MC ${i+1}`, lives: cfg.startLives, out: false, used: [false,false,false,false,false] })); render(); }
+        
+        function init() { 
+            mcs = Array(cfg.totalMCs).fill().map((_, i) => ({ 
+                name: `MC ${i+1}`, 
+                lives: cfg.startLives, 
+                out: false, 
+                used: [false,false,false,false,false],
+                comodinUsed: false 
+            })); 
+            render(); 
+        }
+
         function adjTime(v) { s = Math.max(0, s + v); upT(); }
         
         function tglL() { 
@@ -175,6 +200,7 @@
         function render() {
             const b = document.getElementById('board'); b.innerHTML = "";
             mcs.forEach((m, i) => {
+                let isCurrent = (i === defIdx || i === retIdx);
                 let c = document.createElement('div');
                 c.className = `mc-card ${m.out?'out':''} ${cfg.locked&&i===defIdx?'defensor':''} ${cfg.locked&&i===retIdx?'retador':''}`;
                 c.innerHTML = `
@@ -183,10 +209,27 @@
                     <div class="hearts">${Array(cfg.startLives).fill().map((_, l) => `<span class="heart ${l>=m.lives?'lost':''}" onclick="lose(${i})">❤️</span>`).join('')}</div>
                     <div class="genre-list">${["BoomBap","Trap","Reggae","Rock","D.Tempo"].map((g, gi) => `
                         <div class="genre-row"><span class="genre-txt">${g}</span><div class="dot ${m.used[gi]?'used':''}"></div></div>
-                    `).join('')}</div>`;
+                    `).join('')}</div>
+                    <button class="btn-comodin" 
+                        ${(!cfg.locked || m.out || m.comodinUsed || !isCurrent) ? 'disabled' : ''} 
+                        onclick="useComodin(${i})">
+                        ${m.comodinUsed ? 'USADO' : 'COMODÍN'}
+                    </button>`;
                 b.appendChild(c);
             });
             document.querySelectorAll('.btn-genre').forEach((b, i) => b.disabled = !cfg.locked || bSel || (retIdx!==-1 && mcs[retIdx].used[i]));
+        }
+
+        function useComodin(i) {
+            if(!confirm(`¿${mcs[i].name} quiere intercambiar roles y cambiar el Beat?`)) return;
+            mcs[i].comodinUsed = true;
+            let temp = defIdx;
+            defIdx = retIdx;
+            retIdx = temp;
+            bSel = false;
+            document.getElementById('vid').src = "";
+            stopT();
+            render();
         }
 
         function loadManualYt() {
@@ -206,6 +249,7 @@
         }
 
         function lose(i) { if(bSel && cfg.locked && !mcs[i].out && (i===defIdx || i===retIdx)) { pIdx=i; document.getElementById('m-msg').innerText=`¿${mcs[i].name} perdió una vida?`; document.getElementById('m-confirm').style.display='flex'; } }
+        
         function confirm(v) {
             document.getElementById('m-confirm').style.display='none';
             if(v && pIdx!==null) {
