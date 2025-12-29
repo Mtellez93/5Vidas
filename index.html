@@ -7,17 +7,22 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         * { box-sizing: border-box; }
+        
+        /* Ajuste para Android/Chrome y iOS usando svh */
         body { 
             margin: 0; padding: 0; background: #05081c; color: white; 
             font-family: 'Segoe UI', sans-serif; 
             height: 100vh; height: 100svh; 
             display: flex; flex-direction: column; overflow: hidden; 
         }
+        
+        /* HEADER */
         .main-header { 
             min-height: 8vh; background: #1a1a2e; display: flex; 
             align-items: center; justify-content: space-between; 
             padding: 0 10px; border-bottom: 2px solid #ffd700; flex-shrink: 0; gap: 8px; z-index: 10;
         }
+
         .header-controls { display: flex; gap: 4px; flex-grow: 1; justify-content: center; align-items: center; border-left: 1px solid #333; border-right: 1px solid #333; }
         .group { display: flex; align-items: center; gap: 4px; font-size: 0.65rem; font-weight: bold; color: #aaa; }
         .val { color: #fff; min-width: 12px; text-align: center; font-size: 0.8rem; }
@@ -30,39 +35,51 @@
         #timer-display { font-family: monospace; font-size: 1.1rem; color: #f7b500; font-weight: bold; min-width: 50px; text-align: center; }
         .btn-save { background: #ffd700; color: #000; padding: 5px 12px; border-radius: 4px; font-weight: 900; border: none; cursor: pointer; font-size: 0.7rem; }
         .btn-save.locked { background: #4CAF50; color: white; }
+
+        /* VIDEO */
         .video-section { height: 40vh; background: #000; position: relative; display: flex; justify-content: center; align-items: center; flex-shrink: 0; overflow: hidden; }
         iframe { width: 100%; height: 100%; border: none; position: absolute; z-index: 2; background: transparent; }
         .logo-bg { height: 90%; max-width: 90%; object-fit: contain; opacity: 0.40; z-index: 1; }
+
+        /* TABLERO DINÁMICO */
         .board-section { 
             flex-grow: 1; display: flex; overflow-x: auto; padding: 10px; gap: 10px; 
             background: radial-gradient(circle at center, #1e2a78 0%, #05081c 90%); 
             align-items: stretch; justify-content: center; -webkit-overflow-scrolling: touch; 
         }
+        
         .mc-card { 
             flex: 0 0 170px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); 
             border-radius: 8px; padding: 8px; display: flex; flex-direction: column; justify-content: space-between; height: 100%;
         }
+        
         .mc-card.defensor { border: 2px solid #4CAF50; background: rgba(76, 175, 80, 0.08); }
         .mc-card.retador { border: 2px solid #f7b500; background: rgba(247, 181, 0, 0.08); }
         .mc-card.out { opacity: 0.15; filter: grayscale(1); }
+
         .badge { font-size: 0.6rem; font-weight: 900; text-align: center; text-transform: uppercase; visibility: hidden; padding: 2px; border-radius: 3px; }
         .defensor .badge { visibility: visible; background: #4CAF50; color: white; }
         .retador .badge { visibility: visible; background: #f7b500; color: black; }
+
         .name-input { background: rgba(255,255,255,0.05); border: 1px solid #444; color: white; text-align: center; font-weight: bold; font-size: 0.8rem; padding: 4px; border-radius: 4px; width: 100%; }
         .locked .name-input { border: none; background: transparent; font-size: 1.1rem; color: #ffd700; pointer-events: none; }
+
         .hearts { display: flex; justify-content: center; gap: 2px; margin: 4px 0; }
         .heart { font-size: 1rem; color: #ff4444; cursor: pointer; }
         .heart.lost { opacity: 0.1; }
+
         .genre-list { display: flex; flex-direction: column; gap: 2px; }
         .genre-row { display: flex; justify-content: space-between; align-items: center; padding: 3px 6px; background: rgba(255,255,255,0.06); border-radius: 4px; }
         .genre-txt { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #eee; }
         .dot { width: 7px; height: 7px; border-radius: 50%; border: 1px solid #fff; background: #8ce68c; }
         .dot.used { background: #222 !important; border-color: #444 !important; }
+
         .btn-comodin {
             background: #222; color: #ffd700; border: 1px solid #ffd700; border-radius: 4px;
             font-size: 0.55rem; font-weight: 900; padding: 6px; cursor: pointer; text-transform: uppercase; margin-top: 5px;
         }
         .btn-comodin:disabled { opacity: 0.1; color: #444; border-color: #444; }
+
         @media (max-width: 768px) {
             .main-header { height: auto; flex-direction: column; padding: 8px; gap: 8px; }
             .header-controls { flex-wrap: wrap; border: none; width: 100%; gap: 6px; }
@@ -70,6 +87,7 @@
             .board-section { justify-content: flex-start; padding-bottom: 15px; }
             .mc-card { flex: 0 0 150px; padding: 6px; }
         }
+
         .disclaimer { height: 3vh; min-height: 20px; display: flex; align-items: center; justify-content: center; background: #05081c; color: rgba(255,255,255,0.3); font-size: 0.5rem; text-transform: uppercase; border-top: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; }
         .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
         .modal { background: #1a1a2e; border: 2px solid #ffd700; padding: 20px; border-radius: 10px; text-align: center; width: 100%; max-width: 300px; }
@@ -77,6 +95,7 @@
     </style>
 </head>
 <body>
+
     <header class="main-header">
         <div style="display: flex; gap: 8px; align-items: center; justify-content: space-between; width: 100%;">
             <div style="display: flex; gap: 8px;">
@@ -93,6 +112,7 @@
             </div>
             <button class="btn-save" id="lock-btn" onclick="tglL()">💾 GUARDAR</button>
         </div>
+
         <div class="header-controls">
             <button class="btn-genre" onclick="play(0)">BoomBap</button>
             <button class="btn-genre" onclick="play(1)">Trap</button>
@@ -102,6 +122,7 @@
             <input type="text" id="ytUrl" class="yt-input" placeholder="ID YouTube">
             <button class="btn-load" onclick="loadManualYt()">OK</button>
         </div>
+
         <div style="display: flex; gap: 6px; align-items: center; justify-content: center; width: 100%;">
             <div class="timer-zone">
                 <button class="btn-action" onclick="adjTime(-30)">-</button>
@@ -120,7 +141,10 @@
     </section>
 
     <main class="board-section" id="board"></main>
-    <footer class="disclaimer">MOY666 Products - Sin fines de lucro.</footer>
+
+    <footer class="disclaimer">
+        MOY666 Products - Sin fines de lucro.
+    </footer>
 
     <div id="m-confirm" class="modal-bg">
         <div class="modal">
@@ -189,25 +213,16 @@
             document.querySelectorAll('.btn-genre').forEach((btn, i) => btn.disabled = !cfg.locked || bSel || (retIdx!==-1 && mcs[retIdx].used[i]));
         }
 
-        // FUNCIÓN CORREGIDA: Intercambio forzado de roles
         function triggerComodin(index) {
             if (index !== retIdx) return;
             if (!confirm(`¿${mcs[index].name} usa su COMODÍN? Pasará a ser DEFENSOR ahora.`)) return;
-
-            // Marcar como usado
             mcs[index].comodinUsed = true;
-
-            // Intercambio REAL de variables globales
             let tempDef = defIdx;
             defIdx = retIdx;
             retIdx = tempDef;
-
-            // Limpiar estado de batalla actual
             bSel = false;
             stopT();
             document.getElementById('vid').src = "";
-            
-            // Forzar actualización total de la interfaz
             render();
         }
 
@@ -229,21 +244,33 @@
         function confirmAction(v) {
             document.getElementById('m-confirm').style.display='none';
             if(v && pIdx!==null) {
+                const victimWasDefensor = (pIdx === defIdx);
                 mcs[pIdx].lives--; 
                 if(mcs[pIdx].lives<=0) mcs[pIdx].out=true;
                 
-                // Lógica de rotación después de perder vida
-                if(pIdx===defIdx) { 
-                    defIdx=retIdx; 
-                    retIdx=findN(retIdx); 
-                } else { 
-                    retIdx=findN(retIdx); 
+                if(victimWasDefensor) {
+                    let antiguoDef = defIdx;
+                    defIdx = retIdx; // El retador sube a defensor
+                    retIdx = findNextRetador(defIdx, antiguoDef); 
+                } else {
+                    retIdx = findNextRetador(retIdx, -1);
                 }
                 
                 bSel=false; 
                 document.getElementById('vid').src = ""; 
                 stopT(); render(); checkW();
             } pIdx=null;
+        }
+
+        function findNextRetador(current, forbidden) {
+            let vivos = mcs.filter(m => !m.out).length;
+            if (vivos <= 2) return findN(current);
+
+            for(let i=1; i<=mcs.length; i++){ 
+                let n=(current+i)%mcs.length; 
+                if(!mcs[n].out && n!==defIdx && n!==forbidden) return n; 
+            } 
+            return findN(current);
         }
 
         function findN(c) { 
